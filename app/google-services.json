@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "969504795471",
+    "project_id": "colman24class1",
+    "storage_bucket": "colman24class1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969504795471:android:b6d4374e94f95a307b733a",
+        "android_client_info": {
+          "package_name": "com.example.androidproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANGPDlms0UqbR1eI6LBOZ7RVZBYZDtJe0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969504795471:android:3881c85b1f8464777b733a",
+        "android_client_info": {
+          "package_name": "com.idz.colman24class1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANGPDlms0UqbR1eI6LBOZ7RVZBYZDtJe0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
