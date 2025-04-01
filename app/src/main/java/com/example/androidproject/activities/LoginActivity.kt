@@ -22,7 +22,8 @@ class LoginActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding!!.getRoot())
-        onNotSingedIn()
+//        onNotSingedIn()
+        binding!!.loginProgressBar.visibility = View.GONE
 
         viewModel.loginResult.observe(this, Observer { loggedIn ->
             if (loggedIn) {
@@ -58,13 +59,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
 
-    private fun onNotSingedIn() {
-        binding!!.signinTv.setOnClickListener {
-            changeActivity(
-                SigninActivity::class.java
-            )
-        }
-    }
+//    private fun onNotSingedIn() {
+//        binding!!.signinTv.setOnClickListener {
+//            changeActivity(
+//                SigninActivity::class.java
+//            )
+//        }
+//    }
 
     private fun onLogin() {
         binding!!.loginBtn.setOnClickListener {
