@@ -19,11 +19,11 @@ class LoginActivity : AppCompatActivity() {
     private var binding: ActivityLoginBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d("LoginActivity", "onCreate")
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding!!.getRoot())
+        onNotRegister()
 
         viewModel.loginResult.observe(this, Observer { loggedIn ->
             if (loggedIn) {
@@ -51,6 +51,14 @@ class LoginActivity : AppCompatActivity() {
         super.onStart()
         if (viewModel.isConnected()) {
             changeActivity(MainActivity::class.java)
+        }
+    }
+
+    private fun onNotRegister() {
+        binding!!.registerTv.setOnClickListener {
+            changeActivity(
+                RegisterActivity::class.java
+            )
         }
     }
 
