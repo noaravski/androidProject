@@ -40,7 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
             mail = String.valueOf(binding.mailTpRegister.getText());
             avatar = "";
             if(!isFieldsEmpty(password, mail, username)){
-                User userToAdd = new User(password, mail,username , UserRepository.instance.userId, avatar);
+                User userToAdd = new User(password, mail, username, UserRepository.instance.userId, avatar);
 
                 saveUser(userToAdd);
             }
