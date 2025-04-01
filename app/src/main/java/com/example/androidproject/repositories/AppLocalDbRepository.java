@@ -5,12 +5,7 @@ import android.graphics.Bitmap;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-//import com.example.androidproject.dao.ReviewDao;
-//import com.example.androidproject.model.Review;
-
-//@Database(entities = {Review.class}, version = 2)
 public abstract class AppLocalDbRepository extends RoomDatabase {
-//    public abstract ReviewDao reviewDao();
 
     public static class ImageRepository {
         final public static ImageRepository instance = new ImageRepository();
