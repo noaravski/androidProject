@@ -3,6 +3,7 @@ package com.example.androidproject.activities
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -18,21 +19,18 @@ class LoginActivity : AppCompatActivity() {
     private var binding: ActivityLoginBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("LoginActivity", "onCreate")
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding!!.getRoot())
-//        onNotSingedIn()
-        binding!!.loginProgressBar.visibility = View.GONE
 
         viewModel.loginResult.observe(this, Observer { loggedIn ->
             if (loggedIn) {
                 binding!!.loginProgressBar.visibility = View.GONE
 
-                // User is already logged in, navigate to another activity
                 changeActivity(MainActivity::class.java)
 
-                // Finish this activity to prevent the user from navigating back to the login screen
                 finish()
             }
         })
@@ -40,7 +38,6 @@ class LoginActivity : AppCompatActivity() {
         viewModel.authenticationFailed.observe(this, Observer
         {
             if (it) {
-                // Show toast message for authentication failure
                 showToast("can not log you in.")
                 binding!!.loginProgressBar.visibility = View.GONE
             }
@@ -52,20 +49,10 @@ class LoginActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
-        // Check if user is signed in (non-null) and update UI accordingly.
         if (viewModel.isConnected()) {
             changeActivity(MainActivity::class.java)
         }
     }
-
-
-//    private fun onNotSingedIn() {
-//        binding!!.signinTv.setOnClickListener {
-//            changeActivity(
-//                SigninActivity::class.java
-//            )
-//        }
-//    }
 
     private fun onLogin() {
         binding!!.loginBtn.setOnClickListener {
