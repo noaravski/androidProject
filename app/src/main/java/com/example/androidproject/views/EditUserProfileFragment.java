@@ -3,12 +3,14 @@ package com.example.androidproject.views;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,7 +29,8 @@ public class EditUserProfileFragment extends Fragment {
     Boolean isImgSelected = false;
     User user;
 
-    public EditUserProfileFragment() {}
+    public EditUserProfileFragment() {
+    }
 
     private void setParameters(User user) {
         this.user = user;
@@ -41,12 +44,18 @@ public class EditUserProfileFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        setParameters(EditUserProfileFragmentArgs.fromBundle(getArguments()).getUser());
 
         binding = FragmentEditUserProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
-        binding.usernameEditTp.setText(this.user.getUsername());
-        binding.mailTp.setText(this.user.getMail());
+
+//TODO: delete default user after navigation merged to main
+        if (this.user != null) {
+            binding.usernameEditTp.setText(this.user.getUsername());
+            binding.mailTp.setText(this.user.getMail());
+        } else {
+            binding.usernameEditTp.setText("Default Username");
+            binding.mailTp.setText("Default Mail");
+        }
 
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.TakePicturePreview(), new ActivityResultCallback<Bitmap>() {
             @Override
@@ -58,15 +67,16 @@ public class EditUserProfileFragment extends Fragment {
             }
         });
 
-        if(user.getImgUrl() != null && user.getImgUrl() != "") {
-            Picasso.get().load(user.getImgUrl()).placeholder(R.drawable.profile).into(binding.userImg);
-        } else {
-            binding.userImg.setImageResource(R.drawable.profile);
+        if(this.user != null){
+            if (this.user.getImgUrl() != null && this.user.getImgUrl() != "") {
+                Picasso.get().load(this.user.getImgUrl()).placeholder(R.drawable.profile).into(binding.userImg);
+            } else {
+                binding.userImg.setImageResource(R.drawable.profile);
+            }
         }
 
         onPhotoClick(user);
         onSave(view);
-        onCancel();
 
         return view;
     }
@@ -84,12 +94,7 @@ public class EditUserProfileFragment extends Fragment {
         AppLocalDbRepository.ImageRepository.instance.uploadImage(user.getUid(), bitmap, callback);
     }
 
-    private void onCancel() {
-//        NavDirections action = EditUserProfileFragmentDirections.actionEditUserProfileFragmentToUserProfileFragment();
-//        binding.cancelEditBtn.setOnClickListener(Navigation.createNavigateOnClickListener(action));
-    }
-
-    public void onSave(View view){
+    public void onSave(View view) {
         binding.saveEditBtn.setOnClickListener(View -> {
             User editedUser = new User(this.user.getPassword(),
                     binding.mailTp.getText().toString(),
@@ -97,9 +102,9 @@ public class EditUserProfileFragment extends Fragment {
                     this.user.getUid(),
                     user.getImgUrl());
 
-            if(isImgSelected) {
+            if (isImgSelected) {
                 uploadImg(editedUser, (url) -> {
-                    if(url != null) {
+                    if (url != null) {
                         editedUser.setImgUrl(url);
                         saveUserNewData(editedUser, view);
                     }
