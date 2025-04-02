@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-firestore:24.0.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("androidx.navigation:navigation-fragment-ktx")
     implementation ("androidx.navigation:navigation-ui-ktx")

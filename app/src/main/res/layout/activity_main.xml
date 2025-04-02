@@ -28,8 +28,8 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/profile_pic"
         android:background="@drawable/profile_pic"
+        android:src="@drawable/profile_pic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAppTitle" />
@@ -184,28 +184,29 @@
         app:layout_constraintTop_toBottomOf="@+id/cvSummary">
 
         <TextView
-            android:id="@+id/tvFriendsTab"
+            android:id="@+id/friendsTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/tab_selected_background"
+            android:onClick="onFriendsTabClicked"
             android:padding="8dp"
             android:text="FRIENDS"
             android:textAlignment="center"
             android:textColor="#000000"
-            android:textStyle="bold"
-            android:onClick="onFriendsTabClicked" />
+            android:textStyle="bold" />
+
         <TextView
-            android:id="@+id/tvGroupsTab"
+            android:id="@+id/groupsTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="onGroupsTabClicked"
             android:padding="8dp"
             android:text="GROUPS"
             android:textAlignment="center"
             android:textColor="#757575"
-            android:textStyle="bold"
-            android:onClick="onGroupsTabClicked" />
+            android:textStyle="bold" />
     </LinearLayout>
 
     <!-- Friends List Card -->
@@ -223,18 +224,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/llTabs">
 
-        <LinearLayout
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <!-- Friend 1 -->
-           <include layout="@layout/friend" />
-           <include layout="@layout/friend" />
-           <include layout="@layout/friend" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
 
+            <FrameLayout
+                android:id="@+id/fragmentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
