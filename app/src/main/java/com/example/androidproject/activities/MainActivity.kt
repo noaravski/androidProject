@@ -2,6 +2,7 @@ package com.example.androidproject.activities
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -42,6 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         groupsTextView.setOnClickListener {
             selectTab(groupsTextView, R.layout.vacation)
+            fetchGroupsData()
         }
     }
 
@@ -57,8 +59,10 @@ class MainActivity : AppCompatActivity() {
             .commit()
     }
 
+
     private fun fetchFriendsData() {
-        val friendsContainer = LayoutInflater.from(this).inflate(R.layout.friend, null) as LinearLayout
+        val friendsContainer =
+            LayoutInflater.from(this).inflate(R.layout.friend, null) as LinearLayout
         friendsContainer.removeAllViews()
 
         firestore.collection("users")
@@ -66,23 +70,23 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener { result ->
                 for (document in result) {
                     val userData = document.data
-                    val friendView = LayoutInflater.from(this).inflate(R.layout.friend, friendsContainer, false)
-
-                    // Populate the friendView with userData
+                    val friendView =
+                        LayoutInflater.from(this).inflate(R.layout.friend, friendsContainer, false)
+                    Log.d(
+                        "FriendData",
+                        "Name: ${userData["name"]}, Balance: ${userData["balance"]}"
+                    )
                     val nameTextView = friendView.findViewById<TextView>(R.id.friendName)
                     val balanceTextView = friendView.findViewById<TextView>(R.id.balance)
-//                    val balanceTotalTextView = friendView.findViewById<TextView>(R.id.balanceTotal)
 
                     nameTextView.text = userData["name"].toString()
                     balanceTextView.text = userData["balance"].toString()
-                    if(userData["balance"].toString().toInt() > 0){
+                    if (userData["balance"].toString().toInt() > 0) {
                         balanceTextView.setTextColor(Color.GREEN)
                     } else {
                         balanceTextView.setTextColor(Color.RED)
                     }
-//                    balanceTotalTextView.text = userData["balanceTotal"].toString()
 
-                    // Add the friendView to the container
                     friendsContainer.addView(friendView)
                 }
             }
@@ -91,4 +95,31 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun fetchGroupsData() {
+        val groupsContainer =
+            LayoutInflater.from(this).inflate(R.layout.vacation, null) as LinearLayout
+        groupsContainer.removeAllViews()
+
+        firestore.collection("groups")
+            .get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val userData = document.data
+                    val groupView =
+                        LayoutInflater.from(this).inflate(R.layout.vacation, groupsContainer, false)
+                    Log.d(
+                        "GroupsData",
+                        "Name: ${userData["name"]}, Balance: ${userData["balance"]}"
+                    )
+                    val nameTextView = groupView.findViewById<TextView>(R.id.groupName)
+
+                    nameTextView.text = userData["name"].toString()
+
+                    groupsContainer.addView(groupView)
+                }
+            }
+            .addOnFailureListener { exception ->
+                println("Error getting documents: $exception")
+            }
+    }
 }

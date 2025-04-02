@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+
 }
 
 android {
@@ -47,16 +48,18 @@ android {
 }
 
 dependencies {
-    implementation("com.google.firebase:firebase-firestore:24.0.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("androidx.navigation:navigation-fragment-ktx")
-    implementation ("androidx.navigation:navigation-ui-ktx")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
-    implementation("androidx.room:room-ktx:2.5.2")
+    implementation("com.google.firebase:firebase-firestore:25.1.3")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:20.4.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("androidx.navigation:navigation-fragment-ktx")
+    implementation("androidx.navigation:navigation-ui-ktx")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.9")
+    implementation("androidx.room:room-ktx:2.6.1")
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.appcompat)
-    kapt("androidx.room:room-compiler:2.5.2")
-    implementation("com.google.firebase:firebase-auth:22.3.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("com.google.firebase:firebase-auth:23.2.0")
     implementation("com.google.firebase:firebase-storage")
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-firestore")
@@ -81,4 +84,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    apply(plugin = "com.google.gms.google-services")
 }
