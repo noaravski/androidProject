@@ -8,7 +8,7 @@
     tools:context=".activities.MainActivity">
 
 
-    <!-- App Title -->
+
     <TextView
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
@@ -238,4 +238,6 @@
                 android:layout_margin="16dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

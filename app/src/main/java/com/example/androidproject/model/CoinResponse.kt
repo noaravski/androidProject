@@ -7,9 +7,5 @@ data class CoinResponse(
     @SerializedName("timestamp") val timestamp: Int,
     @SerializedName("base") val base: String,
     @SerializedName("date") val date: String,
-    @SerializedName("rates") val rates: List<Conversions>
-)
-
-data class Conversions(
-    @SerializedName("coin") val coin: Coin
+    @SerializedName("rates") val rates: Map<String, Double>
 )

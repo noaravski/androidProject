@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,11 +21,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidproject.R
 import com.example.androidproject.adapters.FriendAdapter
 import com.example.androidproject.adapters.GroupsAdapter
+import com.example.androidproject.views.CoinListFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
-    private var navController: NavController? = null
 
     private lateinit var friendsTextView: TextView
     private lateinit var groupsTextView: TextView
@@ -36,6 +37,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         firestore = FirebaseFirestore.getInstance()
+
+
 
         friendsTextView = findViewById(R.id.friendsTextView)
         groupsTextView = findViewById(R.id.groupsTextView)
@@ -53,17 +56,15 @@ class MainActivity : AppCompatActivity() {
             fetchGroupsData()
         }
 
+
         val changeCurrencyButton: TextView = findViewById(R.id.changeCurrency)
         changeCurrencyButton.setOnClickListener {
-            inflateRecycleViewCoin()
+            val intent = Intent(this, RecycleViewCoinActivity::class.java)
+            startActivity(intent)
         }
+
     }
 
-    private fun inflateRecycleViewCoin() {
-        navController =
-            (supportFragmentManager.findFragmentById(R.id.nav_graph) as NavHostFragment).navController
-        navController?.navigate(R.id.action_mainActivity_to_coinListFragment)
-    }
 
     private fun selectTab(selectedTextView: TextView, layoutResId: Int) {
         friendsTextView.setBackgroundResource(0)

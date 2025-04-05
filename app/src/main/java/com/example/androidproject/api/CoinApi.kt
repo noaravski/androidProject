@@ -11,14 +11,14 @@ import retrofit2.http.Query;
 interface CoinApi {
     @GET("/latest")
     suspend fun getConversionValue(
-        @Query("access_key") apiKey: String,
-        @Query("base") baseCoin: String,
+        @Query("access_key") access_key: String,
         @Query("symbols") symbols: String,
+//        @Query("base") baseCoin: String,
     ): Response<CoinResponse>
 
     companion object {
         operator fun invoke(): CoinApi {
-            val url = "https://api.exchangeratesapi.io/v1"
+            val url = "https://data.fixer.io/api/latest/"
 
             val gson = GsonBuilder().setLenient().create()
 

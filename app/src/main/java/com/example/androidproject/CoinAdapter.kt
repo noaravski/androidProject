@@ -12,7 +12,7 @@ import com.example.androidproject.databinding.CoinRowBinding
 import com.example.androidproject.model.Coin
 import com.example.androidproject.views.CoinListFragment
 import kotlin.math.roundToInt
-
+import java.util.Currency
 
 class CoinAdapter() : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
     private var coins: List<Coin> = ArrayList()
@@ -25,8 +25,9 @@ class CoinAdapter() : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
         private val coinMarkTextView: TextView = itemView.findViewById(R.id.currency_mark)
 
         fun bind(coin: Coin) {
-            coinCodeTextView.text = coin.currencyCode
-            coinMarkTextView.text = coin.conversionValue.toString()
+            coinCodeTextView.text = coin.currencyCode.toString()
+            coinMarkTextView.text =
+                coin.conversionValue.toString() + " " + Currency.getInstance(coin.currencyCode).symbol
             itemView.setOnClickListener {
                 listener?.onCoinClick(coin)
             }
@@ -81,10 +82,10 @@ class CoinAdapter() : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
     }
 
     interface OnCoinClickListener {
-        fun onCoinClick(coin : Coin)
+        fun onCoinClick(coin: Coin)
     }
 
-    fun setOnRecipeClickListener(listener: CoinListFragment) {
+    fun setOnCoinClickListener(listener: CoinListFragment) {
         this.listener = listener
     }
 }

@@ -14,17 +14,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidproject.CoinAdapter
 import com.example.androidproject.R
 import com.example.androidproject.api.CoinApi
-import com.example.androidproject.factories.RecipesViewModelFactory
+import com.example.androidproject.factories.CoinsViewModelFactory
 import com.example.androidproject.model.Coin
 import com.example.androidproject.repositories.CoinRepository
 import com.example.androidproject.viewModels.CoinListViewModel
 
 class CoinListFragment : Fragment(), CoinAdapter.OnCoinClickListener {
-    private lateinit var factory: RecipesViewModelFactory
+    private lateinit var factory: CoinsViewModelFactory
     private lateinit var recyclerView: RecyclerView
-    private lateinit var recipeAdapter: CoinAdapter
+    private lateinit var coinAdapter: CoinAdapter
     private lateinit var viewModel: CoinListViewModel
-    private lateinit var loader: ProgressBar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -35,27 +34,24 @@ class CoinListFragment : Fragment(), CoinAdapter.OnCoinClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val repository = CoinRepository(CoinApi())
-        factory = RecipesViewModelFactory(repository)
-        viewModel = ViewModelProvider(this, factory).get(CoinListViewModel::class.java)
+        factory = CoinsViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, factory)[CoinListViewModel::class.java]
 
-        recyclerView = view.findViewById(R.id.recyclerViewRecipe)
-        loader = view.findViewById(R.id.progressBar)
+        recyclerView = view.findViewById(R.id.recyclerViewCoin)
+        coinAdapter = CoinAdapter()
+        recyclerView.adapter = coinAdapter
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        recipeAdapter = CoinAdapter()
-        recyclerView.adapter = recipeAdapter
 
-        // Observe recipes LiveData from ViewModel
         viewModel.coins.observe(viewLifecycleOwner, Observer { coinResponse ->
-            coinResponse?.let { // Check if recipeResponse is not null
-                recipeAdapter.submitList(coinResponse)
-                loader.visibility = View.GONE
+            coinResponse?.let {
+                coinAdapter.submitList(coinResponse)
             }
 
         })
 
-        viewModel.fetchCoins("NIS")
-        recipeAdapter.setOnRecipeClickListener(this)
+        viewModel.fetchCoins()
+        coinAdapter.setOnCoinClickListener(this)
 
     }
     override fun onCoinClick(coin: Coin) {

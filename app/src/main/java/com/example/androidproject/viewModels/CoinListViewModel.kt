@@ -12,12 +12,12 @@ class CoinListViewModel(private val repository: CoinRepository) : ViewModel() {
     private lateinit var job: Job
     private val _coins = MutableLiveData<List<Coin>>()
     val coins: LiveData<List<Coin>> get() = _coins
-    fun fetchCoins(query: String) {
+    fun fetchCoins() {
         job = Coroutines.ioTheMain(
-            { repository.getCoins(query) },
+            { repository.getCoins() },
             {
                 println(it)
-                _coins.value = it?.rates?.map { rate -> rate.coin }
+                _coins.value = it?.rates?.map { rate -> Coin(rate.key, rate.value) }
             }
         )
     }

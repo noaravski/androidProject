@@ -4,11 +4,10 @@ import com.example.androidproject.api.CoinApi
 import com.example.androidproject.api.SafeApiRequest
 
 class CoinRepository(private val api: CoinApi) : SafeApiRequest() {
-    suspend fun getCoins(query: String) = apiRequest {
+    suspend fun getCoins() = apiRequest {
         api.getConversionValue(
-            apiKey = "922d92f21ae36578e9a9dd5b128bdbd2",
-            baseCoin = query,
-            symbols = "USD,EUR,NIS,THB"
+            access_key = "0b4d6e0e5dc0ed484e584f986964af68",
+            symbols = "USD,ILS,THB,EUR"
         )
     }
 }
