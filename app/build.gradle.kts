@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id ("androidx.navigation.safeargs")
+
 }
 
 android {
@@ -47,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.squareup.picasso:picasso:2.8")
     implementation ("androidx.navigation:navigation-fragment-ktx")

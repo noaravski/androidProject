@@ -8,26 +8,17 @@
     tools:context=".views.EditUserProfileFragment">
 
     <!-- Top App Bar -->
+
     <View
         android:id="@+id/status_bar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
+        android:layout_marginTop="4dp"
         android:background="#2A9D8F"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back"
-        android:src="@drawable/ic_arrow_back"
-        app:layout_constraintBottom_toBottomOf="@+id/status_bar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/status_bar" />
 
     <ImageView
         android:id="@+id/app_title"
@@ -89,11 +80,9 @@
         android:background="@drawable/rounded_edit_text"
         android:editable="false"
         android:ems="10"
-        android:hint="Enter your email"
         android:inputType="textEmailAddress"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:text="idanefraim13@gmail.com"
         android:textColor="#757575"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -121,54 +110,24 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/rounded_edit_text"
         android:ems="10"
-        android:hint="Enter your username"
         android:inputType="textPersonName"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
-        android:text="idanefraim1"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username_edit_tv" />
 
-    <TextView
-        android:id="@+id/password_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:text="Password:"
-        android:textColor="#000000"
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username_edit_tp" />
-
-    <EditText
-        android:id="@+id/password_tp"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/rounded_edit_text"
-        android:ems="10"
-        android:hint="••••••••••"
-        android:inputType="textPassword"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:text="••••••••••••••"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_tv" />
-
     <!-- Save Button -->
+
+    <!-- Bottom Navigation Bar -->
+
     <Button
         android:id="@+id/save_edit_btn"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="60dp"
         android:layout_marginEnd="32dp"
         android:backgroundTint="#2A9D8F"
         android:text="Save"
@@ -176,11 +135,13 @@
         android:textColor="#FFFFFF"
         android:textSize="16sp"
         app:cornerRadius="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_tp" />
+        app:layout_constraintTop_toBottomOf="@+id/status_bar"
+        app:layout_constraintVertical_bias="0.94" />
 
-    <!-- Bottom Navigation Bar -->
     <View
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
