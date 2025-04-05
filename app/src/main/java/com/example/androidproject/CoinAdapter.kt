@@ -25,8 +25,8 @@ class CoinAdapter() : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
         private val coinMarkTextView: TextView = itemView.findViewById(R.id.currency_mark)
 
         fun bind(coin: Coin) {
-            coinCodeTextView.text = coin.code
-            coinMarkTextView.text = coin.mark
+            coinCodeTextView.text = coin.currencyCode
+            coinMarkTextView.text = coin.conversionValue.toString()
             itemView.setOnClickListener {
                 listener?.onCoinClick(coin)
             }

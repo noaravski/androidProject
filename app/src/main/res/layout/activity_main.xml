@@ -48,6 +48,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvAppTitle">
 
         <TextView
+            android:id="@+id/changeCurrency"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -73,6 +74,7 @@
         app:layout_constraintTop_toBottomOf="@+id/ivProfilePic">
 
         <LinearLayout
+            android:id="@+id/parentLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -209,9 +211,8 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Friends List Card -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/cvFriendsList"
+        android:id="@+id/dataList"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -225,15 +226,16 @@
         app:layout_constraintTop_toBottomOf="@+id/llTabs">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/fragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-
-            <FrameLayout
-                android:id="@+id/fragmentContainer"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_margin="16dp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

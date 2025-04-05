@@ -60,7 +60,7 @@ class CoinListFragment : Fragment(), CoinAdapter.OnCoinClickListener {
     }
     override fun onCoinClick(coin: Coin) {
         println("click on: " + coin.currencyCode)
-        val action = CoinListFragmentDirection.actionMusicalsListFragmentToMusicalFragment(coin)
-        Navigation.findNavController(requireView()).navigate(action)
+//        val action = CoinListFragmentDirection.actionMusicalsListFragmentToMusicalFragment(coin)
+//        Navigation.findNavController(requireView()).navigate(action)
     }
 }

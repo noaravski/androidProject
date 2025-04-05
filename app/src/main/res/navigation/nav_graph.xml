@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/activity_main">
+    <activity
+        android:id="@+id/activity_main"
+        android:name="com.example.androidproject.activities.MainActivity"
+        android:label="Main Activity" />
+
+    <fragment
+        android:id="@+id/coinListFragment"
+        android:name="com.example.androidproject.views.CoinListFragment"
+        android:label="Coin List Fragment" />
+
+    <action
+        android:id="@+id/action_mainActivity_to_coinListFragment"
+        app:destination="@id/coinListFragment" />
+
+</navigation>
