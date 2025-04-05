@@ -7,8 +7,6 @@
     android:background="#E0EBE5"
     tools:context=".views.EditUserProfileFragment">
 
-    <!-- Top App Bar -->
-
     <View
         android:id="@+id/status_bar"
         android:layout_width="match_parent"
@@ -44,7 +42,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/status_bar" />
 
-    <!-- Profile Image -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/user_img"
         android:layout_width="103dp"
@@ -57,7 +54,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/page_title" />
 
-    <!-- Email Field -->
     <TextView
         android:id="@+id/mail_tv"
         android:layout_width="wrap_content"
@@ -117,10 +113,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username_edit_tv" />
-
-    <!-- Save Button -->
-
-    <!-- Bottom Navigation Bar -->
 
     <Button
         android:id="@+id/save_edit_btn"
