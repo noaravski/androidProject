@@ -48,14 +48,11 @@ public class EditUserProfileFragment extends Fragment {
         binding = FragmentEditUserProfileBinding.inflate(inflater, container, false);
         View view = binding.getRoot();
 
-//TODO: delete default user after navigation merged to main
-        if (this.user != null) {
-            binding.usernameEditTp.setText(this.user.getUsername());
-            binding.mailTp.setText(this.user.getMail());
-        } else {
-            binding.usernameEditTp.setText("Default Username");
-            binding.mailTp.setText("Default Mail");
-        }
+        User user = getArguments().getParcelable("User");
+
+        if (user != null) {
+            binding.usernameEditTp.setText(user.getUsername());
+            binding.mailTp.setText(user.getMail());}
 
         cameraLauncher = registerForActivityResult(new ActivityResultContracts.TakePicturePreview(), new ActivityResultCallback<Bitmap>() {
             @Override
@@ -67,7 +64,7 @@ public class EditUserProfileFragment extends Fragment {
             }
         });
 
-        if(this.user != null){
+        if (this.user != null) {
             if (this.user.getImgUrl() != null && this.user.getImgUrl() != "") {
                 Picasso.get().load(this.user.getImgUrl()).placeholder(R.drawable.profile).into(binding.userImg);
             } else {
@@ -76,7 +73,7 @@ public class EditUserProfileFragment extends Fragment {
         }
 
         onPhotoClick(user);
-        onSave(view);
+        onSave(view, user);
 
         return view;
     }
@@ -94,12 +91,12 @@ public class EditUserProfileFragment extends Fragment {
         AppLocalDbRepository.ImageRepository.instance.uploadImage(user.getUid(), bitmap, callback);
     }
 
-    public void onSave(View view) {
+    public void onSave(View view, User user) {
         binding.saveEditBtn.setOnClickListener(View -> {
-            User editedUser = new User(this.user.getPassword(),
+            User editedUser = new User(user.getPassword(),
                     binding.mailTp.getText().toString(),
                     binding.usernameEditTp.getText().toString(),
-                    this.user.getUid(),
+                    user.getUid(),
                     user.getImgUrl());
 
             if (isImgSelected) {
@@ -117,6 +114,6 @@ public class EditUserProfileFragment extends Fragment {
 
     private void saveUserNewData(User editedUser, View view) {
         UserRepository.instance.updateUser(editedUser, (unused) -> Navigation.findNavController(view)
-                .navigate(R.id.action_editUserProfileFragment_to_userProfileFragment));
+                .navigate(R.id.action_editUserProfileFragment_to_profileFragment));
     }
 }
