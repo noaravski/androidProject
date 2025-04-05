@@ -3,29 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/profileFragment">
-
-    <fragment
-        android:id="@+id/profileFragment"
-        android:name="com.example.androidproject.views.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_profile">
-        <action
-            android:id="@+id/action_profileFragment_to_editUserProfileFragment"
-            app:destination="@id/editUserProfileFragment" />
-    </fragment>
-
+    app:startDestination="@id/editUserProfileFragment">
     <fragment
         android:id="@+id/editUserProfileFragment"
         android:name="com.example.androidproject.views.EditUserProfileFragment"
-        android:label="Edit Profile"
-        tools:layout="@layout/fragment_edit_user_profile">
+        android:label="fragment_edit_user_profile"
+        tools:layout="@layout/fragment_edit_user_profile" >
         <argument
-            android:name="user"
+            android:name="User"
             app:argType="com.example.androidproject.model.User"
-            app:nullable="true" />
+            app:nullable="true"/>
         <action
-            android:id="@+id/action_editUserProfileFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            android:id="@+id/action_editUserProfileFragment_to_userProfileFragment"
+            app:destination="@id/editUserProfileFragment" />
     </fragment>
 </navigation>
