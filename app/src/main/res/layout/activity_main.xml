@@ -8,7 +8,6 @@
     tools:context=".activities.MainActivity">
 
 
-
     <TextView
         android:id="@+id/tvAppTitle"
         android:layout_width="wrap_content"
@@ -56,6 +55,31 @@
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold" />
+
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvAddGroup"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="32dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvAppTitle">
+
+        <TextView
+            android:id="@+id/btnAddGroup"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="+"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </androidx.cardview.widget.CardView>
 
     <!-- Summary Card -->
@@ -96,7 +120,7 @@
                     android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/tvYouAreOwed"
+                    android:id="@+id/myBalance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="1500$"
@@ -203,7 +227,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="onGroupsTabClicked"
             android:padding="8dp"
             android:text="GROUPS"
             android:textAlignment="center"
@@ -235,7 +258,10 @@
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_margin="16dp" />
+                android:layout_margin="16dp"
+                android:scrollbars="vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

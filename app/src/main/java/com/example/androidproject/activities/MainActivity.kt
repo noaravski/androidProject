@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -63,6 +64,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val btnAddGroup: TextView = findViewById(R.id.btnAddGroup)
+        btnAddGroup.setOnClickListener {
+            val intent = Intent(this, CreateGroupActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
 
@@ -71,6 +78,39 @@ class MainActivity : AppCompatActivity() {
         groupsTextView.setBackgroundResource(0)
         selectedTextView.setBackgroundResource(R.drawable.tab_selected_background)
     }
+
+    private fun setBalance() {
+        val myBalanceTextView = findViewById<TextView>(R.id.myBalance)
+        val youOweTextView = findViewById<TextView>(R.id.tvYouOwe)
+        val totalTextView = findViewById<TextView>(R.id.tvTotal)
+
+        firestore.collection("expenses").get().addOnSuccessListener { result ->
+            var myBalance = 0.0
+            var youOwe = 0.0
+
+            for (document in result) {
+                val expense = document.data
+                val amount = expense["amount"].toString().toDouble()
+                val type = expense["type"].toString()
+
+                if (type == "owed") {
+                    myBalance += amount
+                } else if (type == "owe") {
+                    youOwe += amount
+                }
+            }
+
+            val total = myBalance - youOwe
+
+            myBalanceTextView.text = "$${myBalance}"
+            youOweTextView.text = "$${youOwe}"
+            totalTextView.text = "$${total}"
+        }.addOnFailureListener { exception ->
+            println("Error getting documents: $exception")
+        }
+    }
+
+
 
     private fun fetchFriendsData() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
