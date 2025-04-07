@@ -10,8 +10,16 @@ class RecycleViewCoinActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.recycleview_coin)
 
+        val fragment = CoinListFragment().apply {
+            arguments = Bundle().apply {
+                putString("GROUP_NAME", intent.getStringExtra("GROUP_NAME"))
+                putString("CURRENCY_NAME", intent.getStringExtra("CURRENCY_NAME"))
+            }
+        }
+
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, CoinListFragment())
+            .replace(R.id.fragment_container, fragment)
             .commit()
+
     }
 }

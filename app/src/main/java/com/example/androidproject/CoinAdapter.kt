@@ -26,8 +26,11 @@ class CoinAdapter() : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
 
         fun bind(coin: Coin) {
             coinCodeTextView.text = coin.currencyCode.toString()
-            coinMarkTextView.text =
-                coin.conversionValue.toString() + " " + Currency.getInstance(coin.currencyCode).symbol
+            coinMarkTextView.text = String.format(
+                "%.2f %s",
+                coin.conversionValue,
+                Currency.getInstance(coin.currencyCode).symbol
+            )
             itemView.setOnClickListener {
                 listener?.onCoinClick(coin)
             }

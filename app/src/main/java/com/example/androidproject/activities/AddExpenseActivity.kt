@@ -17,6 +17,8 @@ class AddExpenseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_expense)
 
+        val groupName = intent.getStringExtra("GROUP_NAME")
+
         val submitButton: Button = findViewById(R.id.submitButton)
         submitButton.setOnClickListener {
             val descriptionField: EditText = findViewById(R.id.descriptionField)
@@ -27,10 +29,9 @@ class AddExpenseActivity : AppCompatActivity() {
 
             if (description.isNotEmpty() && amount != null) {
                 val expense = Expense(
-                    groupName = intent.getStringExtra("GROUP_NAME"),
+                    groupName = groupName,
                     description = description,
                     amount = amount,
-                    currency = intent.getStringExtra("CURRENCY"),
                     date = Timestamp.now(),
                     imgUrl = "https://s",
                     paidBy = "Me",
@@ -43,8 +44,7 @@ class AddExpenseActivity : AppCompatActivity() {
                         Log.d("AddExpenseActivity", "Expense added successfully")
                         finish()
                         val intent = Intent(this, GroupExpensesActivity::class.java)
-                        intent.putExtra("GROUP_NAME", intent.getStringExtra("GROUP_NAME"))
-                        intent.putExtra("CURRENCY", intent.getStringExtra("CURRENCY"))
+                        intent.putExtra("GROUP_NAME", groupName)
                         startActivity(intent)
                     }
                     .addOnFailureListener { e ->

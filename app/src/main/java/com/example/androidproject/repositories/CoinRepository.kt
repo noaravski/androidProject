@@ -6,7 +6,7 @@ import com.example.androidproject.api.SafeApiRequest
 class CoinRepository(private val api: CoinApi) : SafeApiRequest() {
     suspend fun getCoins() = apiRequest {
         api.getConversionValue(
-            access_key = "0b4d6e0e5dc0ed484e584f986964af68",
+            access_key = "356f0c7fb8a7ff272314bd149bff3e99",
             symbols = "USD,ILS,THB,EUR"
         )
     }

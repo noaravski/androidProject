@@ -7,6 +7,7 @@ import com.example.androidproject.Coroutines
 import com.example.androidproject.model.Coin
 import com.example.androidproject.repositories.CoinRepository
 import kotlinx.coroutines.Job
+import java.util.Currency
 
 class CoinListViewModel(private val repository: CoinRepository) : ViewModel() {
     private lateinit var job: Job
@@ -25,6 +26,12 @@ class CoinListViewModel(private val repository: CoinRepository) : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         if (::job.isInitialized) job.cancel()
+    }
+
+    fun convertCurrency(newCurrency: String, oldCurrency: String): Double? {
+        var newCurrencyValue: Double? = _coins.value?.find { it.currencyCode == newCurrency }?.conversionValue
+        var oldCurrencyValue: Double? = _coins.value?.find { it.currencyCode == oldCurrency }?.conversionValue
+        return newCurrencyValue?.div(oldCurrencyValue!!)
     }
 }
 

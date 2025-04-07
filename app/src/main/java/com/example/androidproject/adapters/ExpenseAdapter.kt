@@ -8,6 +8,7 @@ import com.example.androidproject.R
 import com.example.androidproject.databinding.ExpenseItemBinding
 import com.example.androidproject.model.Expense
 import java.text.SimpleDateFormat
+import java.util.Currency
 import java.util.Locale
 
 class ExpensesAdapter(private val expenses: List<Expense>) :
@@ -20,7 +21,7 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
             binding.expenseDate.text = SimpleDateFormat(
                 "dd/MM/yyyy HH:mm", Locale.getDefault()
             ).format(expense.date!!.toDate())
-            binding.expenseAmount.text = "${expense.currency} ${expense.amount}"
+            binding.expenseAmount.text = expense.amount.toString()
 
             if (expense.paidBy == "Self") {
                 binding.expenseStatus.text = "${expense.paidBy} owes you"
