@@ -33,56 +33,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAppTitle" />
 
-    <!-- Dollar Icon -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvDollarIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="60dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAppTitle">
 
-        <TextView
-            android:id="@+id/changeCurrency"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="$"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cvAddGroup"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="32dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvAppTitle">
-
-        <TextView
-            android:id="@+id/btnAddGroup"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="+"
-            android:textColor="#000000"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-    </androidx.cardview.widget.CardView>
-
-    <!-- Summary Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cvSummary"
         android:layout_width="0dp"
@@ -103,8 +54,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="12dp">
-
-            <!-- You are owed -->
+            
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -112,50 +62,12 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/addGroupTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Your are owed:"
-                    android:textAlignment="center"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/myBalance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="1500$"
-                    android:textAlignment="center"
-                    android:textColor="#000000"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <!-- Divider -->
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="#E0E0E0" />
-
-            <!-- You owe -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="You owe:"
-                    android:textAlignment="center"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/tvYouOwe"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="750$"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="Add Group"
                     android:textAlignment="center"
                     android:textColor="#000000"
                     android:textSize="18sp"
@@ -175,19 +87,14 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Total"
-                    android:textAlignment="center"
-                    android:textColor="#757575"
-                    android:textSize="14sp" />
 
                 <TextView
-                    android:id="@+id/tvTotal"
+                    android:id="@+id/editProfileTextView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="750$"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="Edit Profile"
                     android:textAlignment="center"
                     android:textColor="#000000"
                     android:textSize="18sp"
@@ -215,7 +122,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/tab_selected_background"
-            android:onClick="onFriendsTabClicked"
             android:padding="8dp"
             android:text="FRIENDS"
             android:textAlignment="center"
@@ -260,8 +166,8 @@
                 android:layout_height="match_parent"
                 android:layout_margin="16dp"
                 android:scrollbars="vertical"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
