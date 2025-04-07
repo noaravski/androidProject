@@ -16,16 +16,16 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
     inner class ExpenseViewHolder(private val binding: ExpenseItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(expense: Expense) {
-            binding.expenseTitle.text = expense.Description
+            binding.expenseTitle.text = expense.description
             binding.expenseDate.text = SimpleDateFormat(
                 "dd/MM/yyyy HH:mm", Locale.getDefault()
-            ).format(expense.Date!!.toDate())
-            binding.expenseAmount.text = "${expense.Currency} ${expense.Amount}"
+            ).format(expense.date!!.toDate())
+            binding.expenseAmount.text = "${expense.currency} ${expense.amount}"
 
-            if (expense.PaidBy == "You") {
-                binding.expenseStatus.text = "${expense.PaidBy} owes you"
+            if (expense.paidBy == "Self") {
+                binding.expenseStatus.text = "${expense.paidBy} owes you"
             } else {
-                binding.expenseStatus.text = "You owe ${expense.PaidBy}"
+                binding.expenseStatus.text = "You owe ${expense.paidBy}"
             }
         }
     }

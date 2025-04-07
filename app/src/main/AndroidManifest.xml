@@ -22,6 +22,7 @@
             android:resource="@drawable/profile_pic" />
         <activity android:name=".activities.CreateGroupActivity" />
         <activity android:name=".activities.GroupExpensesActivity" />
+        <activity android:name=".activities.AddExpenseActivity" />
         <activity
             android:name=".activities.LoginActivity"
             android:exported="true">

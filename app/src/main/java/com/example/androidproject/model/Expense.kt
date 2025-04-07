@@ -1,12 +1,11 @@
 package com.example.androidproject.model
 
 data class Expense(
-    val GroupName: String?,
-    val Description: String?,
-    val Amount: Double?,
-    val Currency: String?,
-    val Date: com.google.firebase.Timestamp?,
-    val ImgUrl: String?,
-    val PaidBy: String?,
-    val SplitBetween: List<String>?
+    val groupName: String?,
+    val description: String?,
+    val amount: Double?,
+    val currency: String?,
+    val date: com.google.firebase.Timestamp?,
+    val imgUrl: String?,
+    val paidBy: String?,
 )
