@@ -145,8 +145,9 @@ class MainActivity : AppCompatActivity() {
                 val groupData = document.data
                 groupsList.add(groupData["groupName"].toString())
             }
-            val adapter = GroupsAdapter(groupsList)
-            recyclerView.adapter = adapter
+            adapter.notifyDataSetChanged()
+//            val adapter = GroupsAdapter(groupsList)
+//            recyclerView.adapter = adapter
         }.addOnFailureListener { exception ->
             println("Error getting documents: $exception")
         }
