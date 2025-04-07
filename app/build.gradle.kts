@@ -1,10 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("kotlin-kapt")
-    id ("androidx.navigation.safeargs")
+    id("androidx.navigation.safeargs")
 
 }
 
@@ -20,18 +22,29 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val localPropertiesFile = rootProject.file("local.properties")
+        val localProperties = Properties().apply {
+            if (localPropertiesFile.exists()) {
+                load(localPropertiesFile.inputStream())
+            }
+        }
+
+        buildConfigField("String", "CLOUD_NAME", "\"dz4ryazjv\"")
+        buildConfigField("String", "API_KEY", "\"772156473141549\"")
+        buildConfigField("String", "API_SECRET", "\"vdzRMXa0KGQcbC-pLSSB_iMUjZA\"")
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
     }
@@ -49,11 +62,11 @@ android {
 }
 
 dependencies {
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("de.hdodenhof:circleimageview:3.1.0")
-    implementation ("com.squareup.picasso:picasso:2.8")
-    implementation ("androidx.navigation:navigation-fragment-ktx")
-    implementation ("androidx.navigation:navigation-ui-ktx")
+    implementation("com.cloudinary:cloudinary-android:3.0.2")
+    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("com.squareup.picasso:picasso:2.8")
+    implementation("androidx.navigation:navigation-fragment-ktx")
+    implementation("androidx.navigation:navigation-ui-ktx")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.room:room-ktx:2.5.2")
     implementation(libs.androidx.navigation.fragment)
