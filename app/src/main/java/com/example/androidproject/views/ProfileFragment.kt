@@ -15,6 +15,8 @@ import com.example.androidproject.activities.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import de.hdodenhof.circleimageview.CircleImageView
 import com.example.androidproject.repositories.UserRepository
+import com.squareup.picasso.Picasso
+import kotlin.text.get
 
 class ProfileFragment : Fragment() {
 
@@ -24,8 +26,7 @@ class ProfileFragment : Fragment() {
     private lateinit var editProfileButton: ConstraintLayout
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
@@ -52,9 +53,19 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadUserProfileImage() {
-        val user = auth.currentUser
-        user?.let { firebaseUser ->
-            firebaseUser.photoUrl?.let { uri ->
+        UserRepository.instance.getUserData { user ->
+            if (user != null) {
+                user.imgUrl?.let { uri ->
+                    if (uri.isEmpty()) {
+                        profileImage.setImageResource(R.drawable.profile)
+                    } else {
+                        Picasso.get().load(uri).placeholder(R.drawable.profile)
+                            .error(R.drawable.profile).into(profileImage)
+                    }
+                }
+            } else {
+                Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -77,12 +88,12 @@ class ProfileFragment : Fragment() {
                 userBundle.putParcelable("User", user)
 
                 findNavController().navigate(
-                    R.id.action_profileFragment_to_editUserProfileFragment,
-                    userBundle
+                    R.id.action_profileFragment_to_editUserProfileFragment, userBundle
                 )
             } else {
                 Toast.makeText(requireContext(), "Failed to load user data", Toast.LENGTH_SHORT)
                     .show()
             }
-        }}
+        }
+    }
 }
