@@ -18,4 +18,28 @@
     <action
         android:id="@+id/action_mainActivity_to_coinListFragment"
         app:destination="@id/coinListFragment" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.example.androidproject.views.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profileFragment_to_editUserProfileFragment"
+            app:destination="@id/editUserProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editUserProfileFragment"
+        android:name="com.example.androidproject.views.EditUserProfileFragment"
+        android:label="Edit Profile"
+        tools:layout="@layout/fragment_edit_user_profile">
+        <argument
+            android:name="user"
+            app:argType="com.example.androidproject.model.User"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_editUserProfileFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
 </navigation>
