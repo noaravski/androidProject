@@ -19,7 +19,7 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/profile_pic" />
+            android:resource="@drawable/profile" />
         <activity android:name=".activities.CreateGroupActivity" />
         <activity android:name=".activities.GroupExpensesActivity" />
         <activity android:name=".activities.AddExpenseActivity" />
