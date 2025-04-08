@@ -3,7 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/profileFragment">
+    app:startDestination="@id/mainActivity">
+
+    <activity
+        android:id="@+id/mainActivity"
+        android:name="com.example.androidproject.activities.MainActivity"
+        android:label="Main Activity" />
+
+    <fragment
+        android:id="@+id/coinListFragment"
+        android:name="com.example.androidproject.views.CoinListFragment"
+        android:label="Coin List Fragment" />
+
+    <action
+        android:id="@+id/action_mainActivity_to_coinListFragment"
+        app:destination="@id/coinListFragment" />
 
     <fragment
         android:id="@+id/profileFragment"
