@@ -53,17 +53,10 @@
                 android:layout_marginBottom="24dp">
             </RelativeLayout>
 
-            <!-- Create a group title -->
-
-            <!-- Group name input -->
-
-            <!-- Group description input -->
-
-            <!-- Upload icon -->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="635dp">
 
                 <Button
                     android:id="@+id/btnSubmit"

@@ -2,6 +2,7 @@ package com.example.androidproject.activities
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
@@ -11,8 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidproject.R
 import com.example.androidproject.adapters.FriendAdapter
 import com.example.androidproject.adapters.GroupsAdapter
+import com.example.androidproject.views.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlin.text.replace
 
 class MainActivity : AppCompatActivity() {
 
@@ -43,18 +46,26 @@ class MainActivity : AppCompatActivity() {
             fetchGroupsData()
         }
 
-        val btnAddGroup: TextView = findViewById(R.id.addGroupTextView)
+        val btnAddGroup: ImageView = findViewById(R.id.addGroupBtn)
         btnAddGroup.setOnClickListener {
             val intent = Intent(this, CreateGroupActivity::class.java)
             startActivity(intent)
         }
 
+        val btnProfile: ImageView = findViewById(R.id.ivProfilePic)
+        btnProfile.setOnClickListener {
+            val fragmentTransaction = supportFragmentManager.beginTransaction()
+            fragmentTransaction.replace(android.R.id.content, ProfileFragment())
+            fragmentTransaction.addToBackStack(null)
+            fragmentTransaction.commit()
+        }
+
     }
 
     private fun selectTab(selectedTextView: TextView, layoutResId: Int) {
-        friendsTextView.setBackgroundResource(0)
-        groupsTextView.setBackgroundResource(0)
-        selectedTextView.setBackgroundResource(R.drawable.tab_selected_background)
+        friendsTextView.setTypeface(null, android.graphics.Typeface.NORMAL)
+        groupsTextView.setTypeface(null, android.graphics.Typeface.NORMAL)
+        selectedTextView.setTypeface(null, android.graphics.Typeface.BOLD)
     }
 
 
