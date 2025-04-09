@@ -18,6 +18,8 @@ import com.example.androidproject.views.ProfileFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlin.text.get
+import androidx.navigation.fragment.findNavController
+import com.example.androidproject.views.CreateGroupFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -59,21 +61,24 @@ class MainActivity : AppCompatActivity() {
     private fun loadUserProfileImage() {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         firestore.collection("users").document(userId).get().addOnSuccessListener { document ->
-                val imageUrl = document.getString("ImgUrl")
-                if (!imageUrl.isNullOrEmpty()) {
-                    Glide.with(this).load(imageUrl)
-                        .placeholder(R.drawable.profile) // Default placeholder
-                        .circleCrop()
-                        .error(R.drawable.profile) // Error placeholder
-                        .into(profilePic)
-                }
-            }.addOnFailureListener { exception ->
-                println("Error fetching profile image: $exception")
+            val imageUrl = document.getString("ImgUrl")
+            if (!imageUrl.isNullOrEmpty()) {
+                Glide.with(this).load(imageUrl)
+                    .placeholder(R.drawable.profile) // Default placeholder
+                    .circleCrop()
+                    .error(R.drawable.profile) // Error placeholder
+                    .into(profilePic)
             }
+        }.addOnFailureListener { exception ->
+            println("Error fetching profile image: $exception")
+        }
     }
 
     private fun openProfileFragment() {
-        // Navigate to profile fragment
+        val existingFragment = supportFragmentManager.findFragmentById(R.id.recyclerView)
+        if (existingFragment != null) {
+            supportFragmentManager.beginTransaction().remove(existingFragment).commit()
+        }
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.fragmentContainer, ProfileFragment())
         transaction.addToBackStack(null)
@@ -81,9 +86,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openCreateGroupActivity() {
-        // Navigate to create group activity
-        val intent = Intent(this@MainActivity, CreateGroupActivity::class.java)
-        startActivity(intent)
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.fragmentContainer, CreateGroupFragment())
+        transaction.addToBackStack(null)
+        transaction.commit()
     }
 
     private fun switchToFriendsTab() {

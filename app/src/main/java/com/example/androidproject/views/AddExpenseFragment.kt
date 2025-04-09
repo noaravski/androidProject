@@ -1,27 +1,31 @@
-package com.example.androidproject.activities
+package com.example.androidproject.fragments
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.example.androidproject.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import java.util.HashMap
 import java.util.UUID
 
-class AddExpenseActivity : AppCompatActivity() {
+class AddExpenseFragment : Fragment() {
 
     private lateinit var amountField: EditText
     private lateinit var descriptionField: EditText
     private lateinit var uploadButton: ImageButton
     private lateinit var submitButton: Button
+    private lateinit var loadingBar: ProgressBar
 
     private var selectedImageUri: Uri? = null
     private var groupId: String? = null
@@ -36,15 +40,17 @@ class AddExpenseActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.fragment_add_expense)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_add_expense, container, false)
 
-        // Get group ID from intent
-        groupId = intent.getStringExtra("groupId")
+        // Get group ID from arguments
+        groupId = arguments?.getString("groupId")
         if (groupId == null) {
-            finish()
-            return
+            activity?.finish()
+            return null
         }
 
         // Initialize Firebase
@@ -53,14 +59,17 @@ class AddExpenseActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         // Initialize UI elements
-        amountField = findViewById(R.id.amountField)
-        descriptionField = findViewById(R.id.descriptionField)
-        uploadButton = findViewById(R.id.uploadButton)
-        submitButton = findViewById(R.id.submitButton)
+        amountField = view.findViewById(R.id.amountField)
+        descriptionField = view.findViewById(R.id.descriptionField)
+        uploadButton = view.findViewById(R.id.uploadButton)
+        submitButton = view.findViewById(R.id.submitButton)
+        loadingBar = view.findViewById(R.id.loadingBar)
 
         // Set up click listeners
         uploadButton.setOnClickListener { getContent.launch("image/*") }
         submitButton.setOnClickListener { addExpense() }
+
+        return view
     }
 
     private fun addExpense() {
@@ -85,6 +94,9 @@ class AddExpenseActivity : AppCompatActivity() {
             return
         }
 
+        // Show loading
+        loadingBar.visibility = View.VISIBLE
+
         // Create expense in Firestore
         val expenseId = UUID.randomUUID().toString()
         val userId = auth.currentUser?.uid ?: return
@@ -107,7 +119,7 @@ class AddExpenseActivity : AppCompatActivity() {
                     }
                 }
                 .addOnFailureListener { e ->
-                    Toast.makeText(this@AddExpenseActivity, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Failed to upload image", Toast.LENGTH_SHORT).show()
                     saveExpenseToFirestore(expenseId, expense)
                 }
         } else {
@@ -119,16 +131,26 @@ class AddExpenseActivity : AppCompatActivity() {
         db.collection("expenses").document(expenseId)
             .set(expense)
             .addOnSuccessListener {
-                Toast.makeText(this@AddExpenseActivity, "Expense added successfully", Toast.LENGTH_SHORT).show()
-                // Navigate back to GroupExpensesActivity
-                val intent = Intent(this@AddExpenseActivity, GroupExpensesActivity::class.java)
-                intent.putExtra("groupId", groupId)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(intent)
-                finish()
+                Toast.makeText(requireContext(), "Expense added successfully", Toast.LENGTH_SHORT).show()
+                // Navigate back to the previous fragment
+                parentFragmentManager.popBackStack()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this@AddExpenseActivity, "Error adding expense: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error adding expense: ${e.message}", Toast.LENGTH_SHORT).show()
             }
+            .addOnCompleteListener {
+                // Hide loading
+                loadingBar.visibility = View.GONE
+            }
+    }
+
+    companion object {
+        fun newInstance(groupId: String): AddExpenseFragment {
+            val fragment = AddExpenseFragment()
+            val args = Bundle()
+            args.putString("groupId", groupId)
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

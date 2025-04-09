@@ -30,7 +30,9 @@
             android:id="@+id/action_registerActivity_to_loginActivity"
             app:destination="@id/loginActivity" />
     </activity>
-
+    <action
+        android:id="@+id/action_createGroupFragment_to_mainFragment"
+        app:destination="@id/mainActivity" />
     <!-- Main Activity -->
     <activity
         android:id="@+id/mainActivity"
@@ -98,7 +100,7 @@
         android:id="@+id/groupExpensesActivity"
         android:name="com.example.androidproject.activities.GroupExpensesActivity"
         android:label="Group Expenses"
-        tools:layout="@layout/activity_group_expenses">
+        tools:layout="@layout/fragment_group_expenses">
         <argument
             android:name="groupId"
             app:argType="string" />
@@ -111,7 +113,7 @@
         android:id="@+id/addExpenseActivity"
         android:name="com.example.androidproject.activities.AddExpenseActivity"
         android:label="Add Expense"
-        tools:layout="@layout/activity_add_expense">
+        tools:layout="@layout/fragment_add_expense">
         <argument
             android:name="groupId"
             app:argType="string" />

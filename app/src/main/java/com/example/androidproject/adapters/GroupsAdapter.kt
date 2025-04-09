@@ -1,15 +1,15 @@
 package com.example.androidproject.adapters
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
-import com.example.androidproject.activities.GroupExpensesActivity
+import com.example.androidproject.fragments.GroupExpenseFragment
 import com.example.androidproject.model.Vacation
 
 class GroupsAdapter(private val groupsList: List<Vacation>) :
@@ -30,10 +30,16 @@ class GroupsAdapter(private val groupsList: List<Vacation>) :
             .error(R.drawable.profile)
             .into(holder.profileImageView)
 
-        holder.itemView.setOnClickListener {
-            val intent = Intent(holder.itemView.context, GroupExpensesActivity::class.java)
-            intent.putExtra("GROUP_NAME", groupsList[position].groupName)
-            holder.itemView.context.startActivity(intent)
+        holder.itemView.setOnClickListener { view ->
+            val context = view.context
+            if (context is FragmentActivity) {
+                val groupName = groupsList[position].groupName
+                val fragment = GroupExpenseFragment.newInstance(groupName)
+                context.supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragmentContainer, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
     }
 
