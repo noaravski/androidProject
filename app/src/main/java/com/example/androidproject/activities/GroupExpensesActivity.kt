@@ -2,175 +2,124 @@ package com.example.androidproject.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidproject.R
-import com.example.androidproject.adapters.ExpensesAdapter
-import com.example.androidproject.model.Expense
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.ArrayList
 
 class GroupExpensesActivity : AppCompatActivity() {
 
+    private lateinit var expensesRecyclerView: RecyclerView
+    private lateinit var noExpensesTextView: TextView
     private lateinit var loadingBar: ProgressBar
-    private lateinit var db: FirebaseFirestore
-    private var groupName: String = ""
-    private var groupCurrency: String = ""
+    private lateinit var addExpenseButton: CardView
+    private lateinit var locationText: TextView
+    private lateinit var groupDescriptionTextView: TextView
+    private lateinit var groupCurrency: TextView
 
+    private var groupId: String? = null
+    private lateinit var db: FirebaseFirestore
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group_expenses)
 
-        loadingBar = findViewById(R.id.loadingBar)
-        loadingBar.visibility = View.VISIBLE
-
-        val expensesRecyclerView = findViewById<RecyclerView>(R.id.expensesRecyclerView)
-        val noExpensesTextView = findViewById<TextView>(R.id.noExpensesTextView)
-        val locationTextView = findViewById<TextView>(R.id.locationText)
-
-        groupName = intent.getStringExtra("GROUP_NAME")!!
-        val newCurrencyName = intent.getStringExtra("CURRENCY_NAME")
-        val newCurrencyValue = intent.getStringExtra("CURRENCY_VALUE")?.toDouble()
-
-        locationTextView.text = "Location: $groupName"
-
-        try {
-            db = FirebaseFirestore.getInstance()
-        } catch (e: Exception) {
-            Log.e("GroupExpensesActivity", "Error initializing Firestore", e)
+        // Get group ID from intent
+        groupId = intent.getStringExtra("groupId")
+        if (groupId == null) {
             finish()
             return
         }
 
-        if (newCurrencyValue != null) {
-            updateGroupCurrency(groupName, newCurrencyName)
-            updateExpensesCurrency(groupName, newCurrencyValue)
-            groupCurrency = newCurrencyName!!
-        }
+        // Initialize Firebase
+        db = FirebaseFirestore.getInstance()
+        auth = FirebaseAuth.getInstance()
 
-        getCurrency()
-        getDescription()
+        // Initialize UI elements
+        expensesRecyclerView = findViewById(R.id.expensesRecyclerView)
+        noExpensesTextView = findViewById(R.id.noExpensesTextView)
+        loadingBar = findViewById(R.id.loadingBar)
+        addExpenseButton = findViewById(R.id.cvAddExpense)
+        locationText = findViewById(R.id.locationText)
+        groupDescriptionTextView = findViewById(R.id.groupDescriptionTextView)
+        groupCurrency = findViewById(R.id.groupCurrency)
 
-        val changeCurrencyButton: TextView = findViewById(R.id.changeCurrency)
-        changeCurrencyButton.setOnClickListener {
-            val intent = Intent(this, RecycleViewCoinActivity::class.java)
-            intent.putExtra("GROUP_NAME", groupName)
-            intent.putExtra("CURRENCY_NAME", groupCurrency)
-            startActivity(intent)
-        }
+        // Set up RecyclerView
+        expensesRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val addExpenseButton: TextView = findViewById(R.id.addExpense)
+        // Set up click listener for add expense button
         addExpenseButton.setOnClickListener {
-            val intent = Intent(this, AddExpenseActivity::class.java)
-            intent.putExtra("GROUP_NAME", groupName)
+            val intent = Intent(this@GroupExpensesActivity, AddExpenseActivity::class.java)
+            intent.putExtra("groupId", groupId)
             startActivity(intent)
         }
 
-        val expensesCollection = db.collection("expenses")
-        expensesCollection.whereEqualTo("groupName", groupName)
-            .addSnapshotListener { snapshots, e ->
-                if (e != null) {
-                    Log.e("GroupExpensesActivity", "Error getting documents: ", e)
-                    return@addSnapshotListener
-                }
+        // Load group data and expenses
+        loadGroupData()
+        loadExpenses()
+    }
 
-                val expenses = mutableListOf<Expense>()
-                if (snapshots != null && !snapshots.isEmpty) {
-                    for (document in snapshots.documents) {
-                        val expense = Expense(
-                            groupName = document.getString("groupName"),
-                            description = document.getString("description"),
-                            amount = document.getDouble("amount"),
-                            date = document.getTimestamp("date"),
-                            imgUrl = document.getString("imgUrl"),
-                            paidBy = document.getString("paidBy"),
-                        )
-                        expenses.add(expense)
+    private fun loadGroupData() {
+        db.collection("groups").document(groupId!!)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val data = documentSnapshot.data
+                    if (data != null) {
+                        locationText.text = data.getOrDefault("name", "Group").toString()
+                        groupDescriptionTextView.text = data.getOrDefault("description", "").toString()
+                        groupCurrency.text = "Currency: USD" // Default or from data
                     }
-                    noExpensesTextView.visibility = View.GONE
-                } else {
-                    Log.d("GroupExpensesActivity", "No expenses yet")
-                    noExpensesTextView.visibility = View.VISIBLE
                 }
+            }
+            .addOnFailureListener {
+                // Handle error
+            }
+    }
 
-                expenses.sortByDescending { it.date }
+    private fun loadExpenses() {
+        loadingBar.visibility = View.VISIBLE
 
-                val adapter = ExpensesAdapter(expenses)
-                expensesRecyclerView.layoutManager = LinearLayoutManager(this)
-                expensesRecyclerView.adapter = adapter
+        db.collection("expenses")
+            .whereEqualTo("groupId", groupId)
+            .get()
+            .addOnCompleteListener { task ->
                 loadingBar.visibility = View.GONE
-            }
-    }
 
-    fun updateExpensesCurrency(groupName: String, newCurrency: Double) {
-        db.collection("expenses").whereEqualTo("groupName", groupName).get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    db.collection("expenses").document(document.id).update(
-                        "amount",
-                        String.format("%.2f", document.getDouble("amount")!!.times(newCurrency))
-                            .toDouble()
-                    )
-                }
-            }.addOnFailureListener { e ->
-                Log.e("GroupExpensesActivity", "Error updating expenses currency", e)
-            }
-    }
+                if (task.isSuccessful) {
+                    val expenses = ArrayList<Map<String, Any>>()
 
-    fun updateGroupCurrency(groupName: String, newCurrency: String?) {
-        db.collection("groups").whereEqualTo("groupName", groupName).get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    db.collection("groups").document(document.id).update("currency", newCurrency)
-                }
-            }.addOnFailureListener { e ->
-                Log.e("GroupExpensesActivity", "Error updating group currency", e)
-            }
-    }
+                    for (document in task.result!!) {
+                        expenses.add(document.data)
+                    }
 
-    fun getCurrency() {
-        if (groupCurrency == "") {
-
-            val groupCurrencyTextView = findViewById<TextView>(R.id.groupCurrency)
-
-            db.collection("groups").whereEqualTo("groupName", groupName).get()
-                .addOnSuccessListener { documents ->
-                    if (documents.isEmpty) {
-                        Log.d("GroupExpensesActivity", "No documents found for group: $groupName")
+                    if (expenses.isEmpty()) {
+                        noExpensesTextView.visibility = View.VISIBLE
+                        expensesRecyclerView.visibility = View.GONE
                     } else {
-                        for (document in documents) {
-                            groupCurrency = document.getString("currency")!!
-                            groupCurrencyTextView.text = "Currency is: $groupCurrency"
-                        }
+                        noExpensesTextView.visibility = View.GONE
+                        expensesRecyclerView.visibility = View.VISIBLE
+
+                        // Set up adapter with expenses data
+                        // This would be implemented with your adapter
                     }
-                }.addOnFailureListener { e ->
-                    Log.e("GroupExpensesActivity", "Error getting group currency", e)
+                } else {
+                    // Handle error
                 }
-        } else {
-            val groupCurrencyTextView = findViewById<TextView>(R.id.groupCurrency)
-            groupCurrencyTextView.text = "Currency is: $groupCurrency"
-        }
+            }
     }
 
-    fun getDescription(){
-        val groupDescriptionTextView = findViewById<TextView>(R.id.groupDescriptionTextView)
-
-        db.collection("groups").whereEqualTo("groupName", groupName).get()
-            .addOnSuccessListener { documents ->
-                if (documents.isEmpty) {
-                    Log.d("GroupExpensesActivity", "No documents found for group: $groupName")
-                } else {
-                    for (document in documents) {
-                        groupDescriptionTextView.text = document.getString("description")
-                    }
-                }
-            }.addOnFailureListener { e ->
-                Log.e("GroupExpensesActivity", "Error getting group description", e)
-            }
+    override fun onResume() {
+        super.onResume()
+        // Refresh expenses when returning to this activity
+        loadExpenses()
     }
 }

@@ -42,16 +42,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="620dp"
-            android:orientation="vertical"
             android:background="#E0EBE5"
+            android:orientation="vertical"
             android:padding="16dp">
 
             <!-- Header with back button and app name -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp">
-            </RelativeLayout>
+                android:layout_marginBottom="24dp"></RelativeLayout>
 
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -72,15 +71,13 @@
                     app:layout_constraintVertical_bias="0.792"
                     tools:layout_editor_absoluteX="-16dp" />
 
-                <ImageButton
-                    android:id="@+id/btnUpload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Upload"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_upload"
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/group_image"
+                    android:layout_width="103dp"
+                    android:layout_height="101dp"
+                    android:src="@drawable/profile"
+                    app:civ_border_color="#EEEEEE"
+                    app:civ_border_width="2dp"
                     app:layout_constraintBottom_toTopOf="@+id/btnSubmit"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -90,6 +87,7 @@
                     android:id="@+id/etGroupDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="23dp"
                     android:background="@drawable/rounded_edit_text"
                     android:hint="Enter your group's Description"
                     android:inputType="textMultiLine"
@@ -104,6 +102,7 @@
                     android:id="@+id/etGroupName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="57dp"
                     android:background="@drawable/rounded_edit_text"
                     android:hint="Enter your group's name"
                     android:inputType="text"
@@ -130,6 +129,7 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
     <View
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"

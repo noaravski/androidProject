@@ -18,8 +18,7 @@ class RecycleViewCoinActivity : AppCompatActivity() {
         }
 
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
+            .replace(R.id.fragmentContainer, fragment)
             .commit()
-
     }
 }

@@ -3,22 +3,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainActivity">
+    app:startDestination="@id/loginActivity">
 
+    <!-- Login and Registration -->
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="com.example.androidproject.activities.LoginActivity"
+        android:label="Login"
+        tools:layout="@layout/activity_login">
+        <action
+            android:id="@+id/action_loginActivity_to_registerActivity"
+            app:destination="@id/registerActivity" />
+        <action
+            android:id="@+id/action_loginActivity_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:popUpTo="@id/loginActivity"
+            app:popUpToInclusive="true" />
+    </activity>
+
+    <activity
+        android:id="@+id/registerActivity"
+        android:name="com.example.androidproject.activities.RegisterActivity"
+        android:label="Register"
+        tools:layout="@layout/activity_register">
+        <action
+            android:id="@+id/action_registerActivity_to_loginActivity"
+            app:destination="@id/loginActivity" />
+    </activity>
+
+    <!-- Main Activity -->
     <activity
         android:id="@+id/mainActivity"
         android:name="com.example.androidproject.activities.MainActivity"
-        android:label="Main Activity" />
+        android:label="Main Activity"
+        tools:layout="@layout/activity_main">
+        <action
+            android:id="@+id/action_mainActivity_to_profileFragment"
+            app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_mainActivity_to_createGroupActivity"
+            app:destination="@id/createGroupActivity" />
+        <action
+            android:id="@+id/action_mainActivity_to_groupExpensesActivity"
+            app:destination="@id/groupExpensesActivity" />
+    </activity>
 
-    <fragment
-        android:id="@+id/coinListFragment"
-        android:name="com.example.androidproject.views.CoinListFragment"
-        android:label="Coin List Fragment" />
-
-    <action
-        android:id="@+id/action_mainActivity_to_coinListFragment"
-        app:destination="@id/coinListFragment" />
-
+    <!-- Profile Section -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.androidproject.views.ProfileFragment"
@@ -27,6 +57,11 @@
         <action
             android:id="@+id/action_profileFragment_to_editUserProfileFragment"
             app:destination="@id/editUserProfileFragment" />
+        <action
+            android:id="@+id/action_profileFragment_to_loginActivity"
+            app:destination="@id/loginActivity"
+            app:popUpTo="@id/nav_graph"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment
@@ -40,6 +75,57 @@
             app:nullable="true" />
         <action
             android:id="@+id/action_editUserProfileFragment_to_profileFragment"
-            app:destination="@id/profileFragment" />
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="true" />
     </fragment>
+
+    <!-- Group Management -->
+    <activity
+        android:id="@+id/createGroupActivity"
+        android:name="com.example.androidproject.activities.CreateGroupActivity"
+        android:label="Create Group"
+        tools:layout="@layout/create_group">
+        <action
+            android:id="@+id/action_createGroupActivity_to_mainActivity"
+            app:destination="@id/mainActivity"
+            app:popUpTo="@id/mainActivity"
+            app:popUpToInclusive="true" />
+    </activity>
+
+    <!-- Expenses Management -->
+    <activity
+        android:id="@+id/groupExpensesActivity"
+        android:name="com.example.androidproject.activities.GroupExpensesActivity"
+        android:label="Group Expenses"
+        tools:layout="@layout/activity_group_expenses">
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_groupExpensesActivity_to_addExpenseActivity"
+            app:destination="@id/addExpenseActivity" />
+    </activity>
+
+    <activity
+        android:id="@+id/addExpenseActivity"
+        android:name="com.example.androidproject.activities.AddExpenseActivity"
+        android:label="Add Expense"
+        tools:layout="@layout/activity_add_expense">
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_addExpenseActivity_to_groupExpensesActivity"
+            app:destination="@id/groupExpensesActivity"
+            app:popUpTo="@id/groupExpensesActivity"
+            app:popUpToInclusive="true" />
+    </activity>
+
+<!--    &lt;!&ndash; Other Fragments &ndash;&gt;-->
+<!--    <fragment-->
+<!--        android:id="@+id/coinListFragment"-->
+<!--        android:name="com.example.androidproject.views.CoinListFragment"-->
+<!--        android:label="Coin List Fragment"-->
+<!--        tools:layout="@layout/recycleview_coin" />-->
 </navigation>

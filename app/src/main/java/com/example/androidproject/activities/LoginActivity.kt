@@ -3,87 +3,91 @@ package com.example.androidproject.activities
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.androidproject.R
 import com.example.androidproject.databinding.ActivityLoginBinding
-import com.example.androidproject.repositories.UserRepository
 import com.example.androidproject.viewModels.LoginViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
-    private lateinit var viewModel: LoginViewModel
-    private var binding: ActivityLoginBinding? = null
+
+    private lateinit var emailEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var loginButton: Button
+    private lateinit var registerTextView: TextView
+    private lateinit var progressBar: ProgressBar
+    private lateinit var mAuth: FirebaseAuth
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
-        binding = ActivityLoginBinding.inflate(layoutInflater)
-        setContentView(binding!!.getRoot())
-        onNotRegister()
+        setContentView(R.layout.activity_login)
 
-        viewModel.loginResult.observe(this, Observer { loggedIn ->
-            if (loggedIn) {
-                binding!!.loginProgressBar.visibility = View.GONE
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance()
 
-                changeActivity(MainActivity::class.java)
+        // Initialize UI elements
+        emailEditText = findViewById(R.id.mail_tp)
+        passwordEditText = findViewById(R.id.password_tp)
+        loginButton = findViewById(R.id.login_btn)
+        registerTextView = findViewById(R.id.register_tv)
+        progressBar = findViewById(R.id.loginProgressBar)
 
+        // Set up login button click listener
+        loginButton.setOnClickListener { loginUser() }
+
+        // Set up register text view click listener
+        registerTextView.setOnClickListener {
+            val intent = Intent(this@LoginActivity, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun loginUser() {
+        val email = emailEditText.text.toString().trim()
+        val password = passwordEditText.text.toString().trim()
+
+        // Validate input
+        if (email.isEmpty()) {
+            emailEditText.error = "Email is required"
+            emailEditText.requestFocus()
+            return
+        }
+
+        if (password.isEmpty()) {
+            passwordEditText.error = "Password is required"
+            passwordEditText.requestFocus()
+            return
+        }
+
+        // Show progress bar
+        progressBar.visibility = View.VISIBLE
+
+        // Sign in with email and password
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this) { task ->
+            progressBar.visibility = View.GONE
+            if (task.isSuccessful) {
+                // Sign in success, navigate to main activity
+                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
                 finish()
-            }
-        })
-
-        viewModel.authenticationFailed.observe(this, Observer
-        {
-            if (it) {
-                showToast("can not log you in.")
-                binding!!.loginProgressBar.visibility = View.GONE
-            }
-        })
-
-        onLogin()
-        binding!!.loginProgressBar.visibility = View.GONE
-    }
-
-    public override fun onStart() {
-        super.onStart()
-        if (viewModel.isConnected()) {
-            changeActivity(MainActivity::class.java)
-        }
-    }
-
-    private fun onNotRegister() {
-        binding!!.registerTv.setOnClickListener {
-            changeActivity(
-                RegisterActivity::class.java
-            )
-        }
-    }
-
-    private fun onLogin() {
-        binding!!.loginBtn.setOnClickListener {
-            val mail: String = binding!!.mailTp.text.toString()
-            val password: String = binding!!.passwordTp.text.toString()
-
-            if (TextUtils.isEmpty(mail)) {
-                showToast("enter mail")
-            } else if (TextUtils.isEmpty(password)) {
-                showToast("enter password")
             } else {
-                binding!!.loginProgressBar.visibility = View.VISIBLE
-                viewModel.login(mail,password)
+                // If sign in fails, display a message to the user
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Authentication failed: ${task.exception?.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun changeActivity(activityClass: Class<*>) {
-        val intent = Intent(this@LoginActivity, activityClass)
-        startActivity(intent)
     }
 }
