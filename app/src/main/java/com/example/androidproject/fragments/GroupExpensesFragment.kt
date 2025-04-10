@@ -13,11 +13,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.adapters.ExpensesAdapter
 import com.example.androidproject.model.Expense
 import com.example.androidproject.model.Group
-import com.example.androidproject.utils.ProfileImageLoader
+import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -38,6 +39,7 @@ class GroupExpensesFragment : Fragment() {
     private lateinit var loadingBar: ProgressBar
     private lateinit var addExpenseButton: CardView
     private lateinit var changeCurrencyButton: CardView
+    private lateinit var editGroupButton: CardView
     private lateinit var locationText: TextView
     private lateinit var groupDescriptionTextView: TextView
     private lateinit var groupCurrency: TextView
@@ -81,6 +83,7 @@ class GroupExpensesFragment : Fragment() {
         loadingBar = view.findViewById(R.id.loadingBar)
         addExpenseButton = view.findViewById(R.id.cvAddExpense)
         changeCurrencyButton = view.findViewById(R.id.cvDollarIcon)
+        editGroupButton = view.findViewById(R.id.cvEditGroup) // Add this to your layout
         locationText = view.findViewById(R.id.locationText)
         groupDescriptionTextView = view.findViewById(R.id.groupDescriptionTextView)
         groupCurrency = view.findViewById(R.id.groupCurrency)
@@ -92,17 +95,39 @@ class GroupExpensesFragment : Fragment() {
         // Set up RecyclerView
         expensesRecyclerView.layoutManager = LinearLayoutManager(context)
         expensesAdapter = ExpensesAdapter(expensesList)
+        expensesAdapter.setOnItemClickListener { expense ->
+            // Navigate to edit expense fragment
+            val action =
+                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToEditExpenseFragment(
+                    expense.id
+                )
+            findNavController().navigate(action)
+        }
+
         expensesRecyclerView.adapter = expensesAdapter
+        expensesAdapter.notifyDataSetChanged()
 
         // Set up click listener for add expense button
         addExpenseButton.setOnClickListener {
-            val action = GroupExpensesFragmentDirections.actionGroupExpensesFragmentToAddExpenseFragment(groupId)
+            val action =
+                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToAddExpenseFragment(
+                    groupId
+                )
             findNavController().navigate(action)
         }
 
         // Set up click listener for change currency button
         changeCurrencyButton.setOnClickListener {
             showCurrencySelectionDialog()
+        }
+
+        // Set up click listener for edit group button
+        editGroupButton.setOnClickListener {
+            val action =
+                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToEditGroupFragment(
+                    groupId
+                )
+            findNavController().navigate(action)
         }
 
         // Load exchange rates
@@ -113,6 +138,7 @@ class GroupExpensesFragment : Fragment() {
         loadExpenses(groupId)
     }
 
+    // Fix the loadGroupData method to properly load group images
     private fun loadGroupData(groupId: String) {
         db.collection("groups").document(groupId)
             .get()
@@ -120,7 +146,9 @@ class GroupExpensesFragment : Fragment() {
                 if (documentSnapshot.exists()) {
                     val data = documentSnapshot.data
                     if (data != null) {
-                        val members = data.getOrDefault("members", listOf<String>()) as? List<String> ?: listOf()
+                        val members =
+                            data.getOrDefault("members", listOf<String>()) as? List<String>
+                                ?: listOf()
 
                         // Handle createdBy as String
                         val createdBy = when (val createdByValue = data["createdBy"]) {
@@ -145,12 +173,19 @@ class GroupExpensesFragment : Fragment() {
                         groupCurrency.text = "Currency: ${currentGroup?.currency}"
                         groupMembersCount.text = "Members: ${members.size}"
                         currencySymbolText.text = getCurrencySymbol(currentGroup?.currency ?: "USD")
+                        Glide.with(this).load(convertToHttps(currentGroup?.imageUrl.toString())).placeholder(R.drawable.island)
+                            .into(profileImage)
 
                         // Load group image from Firestore
                         context?.let { ctx ->
-                            if (!currentGroup?.imageUrl.isNullOrEmpty() && currentGroup?.imageUrl != "default") {
-                                // Use the imageUrl field for groups
-                                ProfileImageLoader.loadGroupImage(ctx, groupId, profileImage)
+                            val imageUrl = currentGroup?.imageUrl
+                            if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
+                                // Load the image directly using Glide
+                                Glide.with(ctx)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.island)
+                                    .error(R.drawable.island)
+                                    .into(profileImage)
                             } else {
                                 profileImage.setImageResource(R.drawable.island)
                             }
@@ -214,6 +249,7 @@ class GroupExpensesFragment : Fragment() {
             }
     }
 
+    // Fix the calculateExpenseSummary method to properly show settlements and update with currency changes
     private fun calculateExpenseSummary() {
         if (expensesList.isEmpty()) {
             expenseSummaryText.visibility = View.GONE
@@ -242,7 +278,14 @@ class GroupExpensesFragment : Fragment() {
 
         // Build summary text
         val summaryBuilder = StringBuilder()
-        summaryBuilder.append("Total spent: $currencySymbol${String.format("%.2f", totalAmount)}\n\n")
+        summaryBuilder.append(
+            "Total spent: $currencySymbol${
+                String.format(
+                    "%.2f",
+                    totalAmount
+                )
+            }\n\n"
+        )
 
         // Add individual payments
         summaryBuilder.append("Payments:\n")
@@ -255,29 +298,53 @@ class GroupExpensesFragment : Fragment() {
         if (paidByMap.size > 1) {
             summaryBuilder.append("Settlements:\n")
 
-            // Sort by amount paid (ascending)
-            val sortedPayers = paidByMap.entries.sortedBy { it.value }
+            // Create a list of people who paid less than average (debtors)
+            val debtors = mutableListOf<Pair<String, Double>>()
+            // Create a list of people who paid more than average (creditors)
+            val creditors = mutableListOf<Pair<String, Double>>()
 
-            // Find who paid less than average (debtors) and who paid more (creditors)
-            val debtors = sortedPayers.filter { it.value < averagePerPerson }
-            val creditors = sortedPayers.filter { it.value > averagePerPerson }
+            for ((person, paid) in paidByMap) {
+                val diff = paid - averagePerPerson
+                if (diff < -0.01) { // Debtor
+                    debtors.add(Pair(person, -diff)) // Store how much they owe
+                } else if (diff > 0.01) { // Creditor
+                    creditors.add(Pair(person, diff)) // Store how much they're owed
+                }
+            }
 
-            // For each debtor, calculate how much they owe to creditors
-            for (debtor in debtors) {
-                var debtRemaining = averagePerPerson - debtor.value
+            // Sort debtors by amount owed (descending)
+            debtors.sortByDescending { it.second }
+            // Sort creditors by amount owed (descending)
+            creditors.sortByDescending { it.second }
 
-                for (creditor in creditors) {
-                    val creditRemaining = creditor.value - averagePerPerson
+            // For each debtor, find creditors to pay
+            for ((debtor, debtAmount) in debtors) {
+                var remainingDebt = debtAmount
 
-                    if (creditRemaining > 0 && debtRemaining > 0) {
-                        val transferAmount = minOf(debtRemaining, creditRemaining)
-                        if (transferAmount > 0.01) { // Threshold to avoid tiny amounts
-                            summaryBuilder.append("${debtor.key} owes ${creditor.key} $currencySymbol${String.format("%.2f", transferAmount)}\n")
-                            debtRemaining -= transferAmount
+                for (i in creditors.indices) {
+                    val (creditor, creditAmount) = creditors[i]
+
+                    if (creditAmount > 0 && remainingDebt > 0) {
+                        // Calculate how much this debtor pays this creditor
+                        val payment = minOf(remainingDebt, creditAmount)
+
+                        if (payment > 0.01) { // Only show meaningful payments
+                            summaryBuilder.append(
+                                "$debtor owes $creditor $currencySymbol${
+                                    String.format(
+                                        "%.2f",
+                                        payment
+                                    )
+                                }\n"
+                            )
+
+                            // Update remaining amounts
+                            remainingDebt -= payment
+                            creditors[i] = Pair(creditor, creditAmount - payment)
                         }
                     }
 
-                    if (debtRemaining <= 0.01) break
+                    if (remainingDebt <= 0.01) break
                 }
             }
         }
@@ -294,17 +361,21 @@ class GroupExpensesFragment : Fragment() {
 
         val exchangeRateService = retrofit.create(ExchangeRateService::class.java)
 
-        exchangeRateService.getExchangeRates("USD").enqueue(object : Callback<ExchangeRateResponse> {
-            override fun onResponse(call: Call<ExchangeRateResponse>, response: Response<ExchangeRateResponse>) {
-                if (response.isSuccessful) {
-                    exchangeRates = response.body()?.rates
+        exchangeRateService.getExchangeRates("USD")
+            .enqueue(object : Callback<ExchangeRateResponse> {
+                override fun onResponse(
+                    call: Call<ExchangeRateResponse>,
+                    response: Response<ExchangeRateResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        exchangeRates = response.body()?.rates
+                    }
                 }
-            }
 
-            override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
-                // Handle error
-            }
-        })
+                override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
+                    // Handle error
+                }
+            })
     }
 
     private fun showCurrencySelectionDialog() {
@@ -339,10 +410,12 @@ class GroupExpensesFragment : Fragment() {
                 // Convert all expenses to new currency
                 convertExpensesToNewCurrency(oldCurrency, newCurrency)
 
-                Toast.makeText(context, "Currency updated to $newCurrency", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Currency updated to $newCurrency", Toast.LENGTH_SHORT)
+                    .show()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(context, "Error updating currency: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error updating currency: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
             }
     }
 

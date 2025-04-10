@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E0EBE5"
-    tools:context=".views.ProfileFragment">
+    android:background="#E0EBE5">
 
     <View
         android:id="@+id/status_bar"

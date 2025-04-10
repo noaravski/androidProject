@@ -46,19 +46,30 @@ class FriendsAdapter(private val friends: List<User>) :
         }
 
         fun bind(user: User) {
-            friendName.text = user.Username
+            // Ensure the view is updated even if data is null or empty
+            friendName.text = user.Username.ifEmpty { "Unknown User" }
 
-            // Load profile image
-            if (!user.ImgUrl.isNullOrEmpty()) {
-                Glide.with(itemView.context)
-                    .load(user.ImgUrl)
-                    .placeholder(R.drawable.profile)
-                    .error(R.drawable.profile)
-                    .circleCrop()
-                    .into(profilePic)
-            } else {
+            // Load profile image with error handling
+            try {
+                if (!user.ImgUrl.isNullOrEmpty()) {
+                    Glide.with(itemView.context)
+                        .load(user.ImgUrl)
+                        .placeholder(R.drawable.profile)
+                        .error(R.drawable.profile)
+                        .circleCrop()
+                        .into(profilePic)
+                } else {
+                    profilePic.setImageResource(R.drawable.profile)
+                }
+            } catch (e: Exception) {
+                // Fallback to default image if there's any error
                 profilePic.setImageResource(R.drawable.profile)
             }
         }
+    }
+
+    // Force refresh the adapter
+    fun refresh() {
+        notifyDataSetChanged()
     }
 }

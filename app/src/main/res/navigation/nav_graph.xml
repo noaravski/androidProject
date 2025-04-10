@@ -104,6 +104,12 @@
         <action
             android:id="@+id/action_groupExpensesFragment_to_addExpenseFragment"
             app:destination="@id/addExpenseFragment" />
+        <action
+            android:id="@+id/action_groupExpensesFragment_to_editExpenseFragment"
+            app:destination="@id/editExpenseFragment" />
+        <action
+            android:id="@+id/action_groupExpensesFragment_to_editGroupFragment"
+            app:destination="@id/editGroupFragment" />
     </fragment>
 
     <fragment
@@ -116,6 +122,36 @@
             app:argType="string" />
         <action
             android:id="@+id/action_addExpenseFragment_to_groupExpensesFragment"
+            app:destination="@id/groupExpensesFragment"
+            app:popUpTo="@id/groupExpensesFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editExpenseFragment"
+        android:name="com.example.androidproject.fragments.EditExpenseFragment"
+        android:label="Edit Expense"
+        tools:layout="@layout/fragment_edit_expense">
+        <argument
+            android:name="expenseId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_editExpenseFragment_to_groupExpensesFragment"
+            app:destination="@id/groupExpensesFragment"
+            app:popUpTo="@id/groupExpensesFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editGroupFragment"
+        android:name="com.example.androidproject.fragments.EditGroupFragment"
+        android:label="Edit Group"
+        tools:layout="@layout/fragment_edit_group">
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_editGroupFragment_to_groupExpensesFragment"
             app:destination="@id/groupExpensesFragment"
             app:popUpTo="@id/groupExpensesFragment"
             app:popUpToInclusive="true" />

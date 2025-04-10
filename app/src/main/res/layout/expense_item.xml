@@ -13,15 +13,18 @@
         android:background="@drawable/rounded_edit_text"
         android:padding="16dp">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/expenseImage"
             android:layout_width="60dp"
             android:layout_height="60dp"
+            android:src="@drawable/ic_recipt"
+            app:civ_border_color="#EEEEEE"
+            app:civ_border_width="2dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:src="@tools:sample/avatars" />
+            tools:src="@tools:sample/avatars"/>
 
         <TextView
             android:id="@+id/expenseTitle"

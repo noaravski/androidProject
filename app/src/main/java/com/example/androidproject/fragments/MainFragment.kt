@@ -42,6 +42,7 @@ class MainFragment : Fragment() {
     private var currentTab = TAB_FRIENDS
     private var groupsListener: ListenerRegistration? = null
     private var usersListener: ListenerRegistration? = null
+    private var isDataLoaded = false
 
     companion object {
         const val TAB_FRIENDS = 0
@@ -69,9 +70,6 @@ class MainFragment : Fragment() {
         friendsTextView = view.findViewById(R.id.friendsTextView)
         groupsTextView = view.findViewById(R.id.groupsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
-
-        // Load user profile picture
-        loadUserProfilePicture()
 
         // Set up RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
@@ -111,6 +109,8 @@ class MainFragment : Fragment() {
         friendsTextView.setOnClickListener { switchToFriendsTab() }
         groupsTextView.setOnClickListener { switchToGroupsTab() }
 
+        // Load user profile picture
+        loadUserProfilePicture()
 
         // Default to friends tab
         switchToFriendsTab()
@@ -128,17 +128,36 @@ class MainFragment : Fragment() {
         // Reload profile picture in case it was updated
         loadUserProfilePicture()
 
-        // Reload current tab data
+        // Reset data loaded flag
+        isDataLoaded = false
+
+        // Always reload current tab data
         if (currentTab == TAB_FRIENDS) {
+            // Force reload friends data
+            friendsList.clear()
+            friendsAdapter.notifyDataSetChanged()
             loadFriends()
         } else {
+            // Force reload groups data
+            groupsList.clear()
+            groupsAdapter.notifyDataSetChanged()
             loadGroups()
         }
     }
 
-    private fun switchToFriendsTab() {
-        if (currentTab == TAB_FRIENDS && friendsList.isNotEmpty()) return
+    override fun onStart() {
+        super.onStart()
+        // Ensure data is loaded when fragment starts
+        if (!isDataLoaded) {
+            if (currentTab == TAB_FRIENDS) {
+                loadFriends()
+            } else {
+                loadGroups()
+            }
+        }
+    }
 
+    private fun switchToFriendsTab() {
         // Update UI for friends tab
         friendsTextView.setBackgroundResource(R.drawable.tab_selected_background)
         friendsTextView.setTextColor(resources.getColor(R.color.black))
@@ -147,6 +166,10 @@ class MainFragment : Fragment() {
 
         // Set adapter
         recyclerView.adapter = friendsAdapter
+
+        // Force clear and reload friends data
+        friendsList.clear()
+        friendsAdapter.notifyDataSetChanged()
 
         // Load friends data
         loadFriends()
@@ -167,6 +190,10 @@ class MainFragment : Fragment() {
         // Set adapter
         recyclerView.adapter = groupsAdapter
 
+        // Force clear and reload groups data
+        groupsList.clear()
+        groupsAdapter.notifyDataSetChanged()
+
         // Load groups data
         loadGroups()
 
@@ -177,6 +204,8 @@ class MainFragment : Fragment() {
     }
 
     private fun loadFriends() {
+        // Show some loading indicator if you have one
+
         // Remove previous listener if exists
         usersListener?.remove()
 
@@ -185,11 +214,14 @@ class MainFragment : Fragment() {
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     // Handle error
+                    Toast.makeText(context, "Error loading friends: ${error.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
                 if (snapshot != null) {
+                    // Clear the list before adding new items
                     friendsList.clear()
+
                     for (document in snapshot.documents) {
                         val user = User(
                             Uid = document.getString("Uid") ?: document.id,
@@ -203,7 +235,18 @@ class MainFragment : Fragment() {
                             friendsList.add(user)
                         }
                     }
+
+                    // Ensure UI updates even if the list is empty
                     friendsAdapter.notifyDataSetChanged()
+
+                    // Mark data as loaded
+                    isDataLoaded = true
+
+                    // Log for debugging
+                    println("Loaded ${friendsList.size} friends")
+
+                    // Force refresh the adapter
+                    friendsAdapter.refresh()
                 }
             }
     }
@@ -221,7 +264,9 @@ class MainFragment : Fragment() {
                 }
 
                 if (snapshot != null) {
+                    // Clear the list before adding new items
                     groupsList.clear()
+
                     for (document in snapshot.documents) {
                         val members = document.get("members") as? List<String> ?: listOf()
 
@@ -243,7 +288,12 @@ class MainFragment : Fragment() {
                         )
                         groupsList.add(group)
                     }
+
+                    // Ensure UI updates even if the list is empty
                     groupsAdapter.notifyDataSetChanged()
+
+                    // Mark data as loaded
+                    isDataLoaded = true
                 }
             }
     }

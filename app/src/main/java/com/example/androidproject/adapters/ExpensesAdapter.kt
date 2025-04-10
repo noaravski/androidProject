@@ -9,13 +9,18 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.model.Expense
-import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 class ExpensesAdapter(private val expenses: List<Expense>) :
     RecyclerView.Adapter<ExpensesAdapter.ExpenseViewHolder>() {
+
+    private var onItemClickListener: ((Expense) -> Unit)? = null
+
+    fun setOnItemClickListener(listener: (Expense) -> Unit) {
+        onItemClickListener = listener
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpenseViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -37,6 +42,15 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
         private val expenseStatus: TextView = itemView.findViewById(R.id.expenseStatus)
         private val expenseAmount: TextView = itemView.findViewById(R.id.expenseAmount)
 
+        init {
+            itemView.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onItemClickListener?.invoke(expenses[position])
+                }
+            }
+        }
+
         fun bind(expense: Expense) {
             expenseTitle.text = expense.description
 
@@ -54,12 +68,10 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
 
             // Load expense image
             if (!expense.imgUrl.isNullOrEmpty()) {
-                val httpsUrl = convertToHttps(expense.imgUrl)
                 Glide.with(itemView.context)
-                    .load(httpsUrl)
+                    .load(expense.imgUrl)
                     .placeholder(R.drawable.ic_recipt)
                     .error(R.drawable.ic_recipt)
-                    .centerCrop()
                     .into(expenseImage)
             } else {
                 expenseImage.setImageResource(R.drawable.ic_recipt)
@@ -74,6 +86,7 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
                 "JPY" -> "¥"
                 "CAD" -> "C$"
                 "AUD" -> "A$"
+                "ILS" -> "₪"
                 else -> currencyCode
             }
         }

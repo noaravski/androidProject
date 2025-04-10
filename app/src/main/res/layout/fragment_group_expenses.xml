@@ -81,7 +81,7 @@
             android:id="@+id/cvDollarIcon"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            app:cardBackgroundColor="#E0EBE5"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -98,7 +98,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
@@ -106,7 +105,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginEnd="5dp"
-            app:cardBackgroundColor="#E0EBE5"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="20dp"
             app:cardElevation="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -123,6 +122,27 @@
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvEditGroup"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="5dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/cvAddExpense"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/editGroupIcon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp"
+                android:src="@drawable/ic_edit"
+                android:contentDescription="Edit Group" />
 
         </androidx.cardview.widget.CardView>
 
@@ -140,7 +160,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/headerLayout"
-        tools:text="Total spent: $100.00\nJohn is owed $25.00\nMary owes $25.00" />
+        tools:text="Total spent: $100.00
+John is owed $25.00
+Mary owes $25.00" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/expensesRecyclerView"
