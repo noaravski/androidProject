@@ -13,12 +13,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.adapters.ExpensesAdapter
 import com.example.androidproject.model.Expense
 import com.example.androidproject.model.Group
-import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
+import com.example.androidproject.utils.ProfileImageLoader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -44,7 +43,7 @@ class GroupExpensesFragment : Fragment() {
     private lateinit var groupDescriptionTextView: TextView
     private lateinit var groupCurrency: TextView
     private lateinit var groupMembersCount: TextView
-    private lateinit var profileImage: CircleImageView
+    private lateinit var groupProfileImageView: CircleImageView
     private lateinit var currencySymbolText: TextView
     private lateinit var expenseSummaryText: TextView
 
@@ -88,7 +87,7 @@ class GroupExpensesFragment : Fragment() {
         groupDescriptionTextView = view.findViewById(R.id.groupDescriptionTextView)
         groupCurrency = view.findViewById(R.id.groupCurrency)
         groupMembersCount = view.findViewById(R.id.groupMembersCount)
-        profileImage = view.findViewById(R.id.profileImage)
+        groupProfileImageView = view.findViewById(R.id.groupProfileImage)
         currencySymbolText = view.findViewById(R.id.changeCurrency)
         expenseSummaryText = view.findViewById(R.id.expenseSummaryText)
 
@@ -138,7 +137,12 @@ class GroupExpensesFragment : Fragment() {
         loadExpenses(groupId)
     }
 
-    // Fix the loadGroupData method to properly load group images
+    private fun loadUserProfileImage(groupId: String) {
+        context?.let { ctx ->
+            ProfileImageLoader.loadGroupImage(ctx,groupId, groupProfileImageView)
+        }
+    }
+
     private fun loadGroupData(groupId: String) {
         db.collection("groups").document(groupId)
             .get()
@@ -173,23 +177,8 @@ class GroupExpensesFragment : Fragment() {
                         groupCurrency.text = "Currency: ${currentGroup?.currency}"
                         groupMembersCount.text = "Members: ${members.size}"
                         currencySymbolText.text = getCurrencySymbol(currentGroup?.currency ?: "USD")
-                        Glide.with(this).load(convertToHttps(currentGroup?.imageUrl.toString())).placeholder(R.drawable.island)
-                            .into(profileImage)
 
-                        // Load group image from Firestore
-                        context?.let { ctx ->
-                            val imageUrl = currentGroup?.imageUrl
-                            if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
-                                // Load the image directly using Glide
-                                Glide.with(ctx)
-                                    .load(imageUrl)
-                                    .placeholder(R.drawable.island)
-                                    .error(R.drawable.island)
-                                    .into(profileImage)
-                            } else {
-                                profileImage.setImageResource(R.drawable.island)
-                            }
-                        }
+                        loadUserProfileImage(groupId)
                     }
                 }
             }

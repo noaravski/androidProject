@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profileImage"
+            android:id="@+id/groupProfileImage"
             android:layout_width="71dp"
             android:layout_height="75dp"
             android:src="@drawable/island"
@@ -39,7 +39,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintStart_toEndOf="@+id/groupProfileImage"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.283" />
 
@@ -51,7 +51,7 @@
             android:text="Group description"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintStart_toEndOf="@+id/groupProfileImage"
             app:layout_constraintTop_toBottomOf="@+id/locationText" />
 
         <TextView
@@ -62,7 +62,7 @@
             android:text="Currency is:"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintStart_toEndOf="@+id/groupProfileImage"
             app:layout_constraintTop_toBottomOf="@+id/groupDescriptionTextView" />
 
         <TextView
@@ -73,7 +73,7 @@
             android:text="Members: 1"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
-            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintStart_toEndOf="@+id/groupProfileImage"
             app:layout_constraintTop_toBottomOf="@+id/groupCurrency" />
 
         <!-- Dollar Icon -->

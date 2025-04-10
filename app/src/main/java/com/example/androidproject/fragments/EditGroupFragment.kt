@@ -24,6 +24,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.utils.CloudinaryHelper
+import com.example.androidproject.utils.ProfileImageLoader
 import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 import com.google.firebase.firestore.FirebaseFirestore
 import de.hdodenhof.circleimageview.CircleImageView
@@ -99,6 +100,8 @@ class EditGroupFragment : Fragment() {
         // Set up click listener for group image
         groupImage.setOnClickListener {
             checkCameraPermission()
+            loadGroupData(groupId)
+
         }
 
         // Set up save button
@@ -108,6 +111,12 @@ class EditGroupFragment : Fragment() {
 
         // Load group data
         loadGroupData(groupId)
+    }
+
+    private fun loadUserProfileImage(groupId: String) {
+        context?.let { ctx ->
+            ProfileImageLoader.loadGroupImage(ctx,groupId, groupImage)
+        }
     }
 
     private fun setupCurrencySpinner() {
@@ -145,18 +154,7 @@ class EditGroupFragment : Fragment() {
                         }
                     }
 
-                    // Load image
-                    if (!currentImageUrl.isNullOrEmpty() && currentImageUrl != "default") {
-                        context?.let { ctx ->
-                            Glide.with(ctx)
-                                .load(currentImageUrl)
-                                .placeholder(R.drawable.island)
-                                .error(R.drawable.island)
-                                .into(groupImage)
-                        }
-                    } else {
-                        groupImage.setImageResource(R.drawable.island)
-                    }
+                    loadUserProfileImage(groupId)
                 } else {
                     Toast.makeText(context, "Group not found", Toast.LENGTH_SHORT).show()
                     findNavController().navigateUp()
