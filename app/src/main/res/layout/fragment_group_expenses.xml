@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#E0EBE5"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".fragments.GroupExpensesFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/headerLayout"
@@ -64,6 +65,16 @@
             app:layout_constraintStart_toEndOf="@+id/profileImage"
             app:layout_constraintTop_toBottomOf="@+id/groupDescriptionTextView" />
 
+        <TextView
+            android:id="@+id/groupMembersCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Members: 1"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            app:layout_constraintStart_toEndOf="@+id/profileImage"
+            app:layout_constraintTop_toBottomOf="@+id/groupCurrency" />
 
         <!-- Dollar Icon -->
         <androidx.cardview.widget.CardView
@@ -117,6 +128,20 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/expenseSummaryText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:padding="8dp"
+        android:textColor="#000000"
+        android:textSize="14sp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        tools:text="Total spent: $100.00\nJohn is owed $25.00\nMary owes $25.00" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/expensesRecyclerView"
         android:layout_width="0dp"
@@ -124,7 +149,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout"
+        app:layout_constraintTop_toBottomOf="@+id/expenseSummaryText"
         tools:listitem="@layout/expense_item" />
 
     <TextView
@@ -157,4 +182,3 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
-

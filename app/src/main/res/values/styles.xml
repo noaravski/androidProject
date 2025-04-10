@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme without ActionBar -->
+    <style name="Theme.AndroidProject.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/teal_primary</item>
+        <item name="colorPrimaryDark">@color/teal_dark</item>
+        <item name="colorAccent">@color/teal_primary</item>
+        <item name="android:windowBackground">@color/background_color</item>
+    </style>
+</resources>

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#E0EBE5"
-    tools:context=".views.AddExpenseFragment">
+    tools:context=".fragments.AddExpenseFragment">
 
     <!-- Top Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -152,4 +152,3 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

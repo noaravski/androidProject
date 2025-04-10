@@ -4,113 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2A9D8F"
     tools:context=".activities.MainActivity">
 
-
-    <ImageView
-        android:id="@+id/app_title"
-        android:layout_width="206dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="TODO"
-        android:src="@drawable/amigo_tittle"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Profile Picture -->
-    <ImageView
-        android:id="@+id/ivProfilePic"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/circle_image"
-        android:scaleType="centerCrop"
-        android:src="@drawable/profile"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_title" />
-
-    <!-- CardView for Data List -->
-    <androidx.cardview.widget.CardView
-        android:id="@+id/dataList"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="4dp"
-        app:layout_constraintBottom_toTopOf="@id/addGroupBtn"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivProfilePic">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <!-- Tabs -->
-            <LinearLayout
-                android:id="@+id/llTabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/friendsTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="FRIENDS"
-                    android:textAlignment="center"
-                    android:textColor="#000000"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/groupsTextView"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="GROUPS"
-                    android:textAlignment="center"
-                    android:textColor="#000000" />
-            </LinearLayout>
-
-            <!-- RecyclerView -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="361dp"
-                android:layout_margin="16dp"
-                android:scrollbars="vertical" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Add Group Button -->
-    <ImageView
-        android:id="@+id/addGroupBtn"
-        android:layout_width="47dp"
-        android:layout_height="52dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="Plus Sign"
-        android:src="@drawable/plus_sign"
+        android:layout_height="0dp"
+        app:defaultNavHost="true"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/dataList" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navGraph="@navigation/nav_graph" />
 
-
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
