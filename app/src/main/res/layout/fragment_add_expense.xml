@@ -108,20 +108,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pageTitle" />
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageButton
         android:id="@+id/uploadButton"
+        android:layout_width="64dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="88dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Upload image"
+        android:src="@drawable/ic_upload"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/amountField"
+        app:tint="@color/black" />
+
+    <!-- Add a square ImageView for expense image preview -->
+    <ImageView
+        android:id="@+id/expenseImagePreview"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="36dp"
-        android:contentDescription="Upload"
-        android:src="@drawable/ic_upload"
-        app:civ_border_color="#EEEEEE"
-        app:civ_border_width="2dp"
+        android:layout_marginTop="20dp"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:background="@drawable/rounded_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.512"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amountField" />
+        app:layout_constraintTop_toBottomOf="@+id/uploadButton"
+        android:contentDescription="Expense Image Preview" />
 
     <Button
         android:id="@+id/submitButton"
@@ -140,7 +153,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/uploadButton" />
+        app:layout_constraintTop_toBottomOf="@+id/expenseImagePreview" />
 
     <View
         android:id="@+id/bottom_nav"

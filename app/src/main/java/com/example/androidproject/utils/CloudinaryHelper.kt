@@ -49,6 +49,7 @@ class CloudinaryHelper {
                     }
 
                     override fun onProgress(requestId: String, bytes: Long, totalBytes: Long) {
+                        if(totalBytes <= 0) return
                         val progress = bytes * 100 / totalBytes
                         Log.d(TAG, "Upload progress: $progress%")
                     }

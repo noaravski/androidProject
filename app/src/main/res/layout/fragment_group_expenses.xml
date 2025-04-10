@@ -2,9 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#E0EBE5"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#E0EBE5"
     tools:context=".fragments.GroupExpensesFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -93,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="$"
+                android:text="💰"
                 android:textColor="#000000"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -140,9 +140,9 @@
                 android:id="@+id/editGroupIcon"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="Edit Group"
                 android:padding="8dp"
-                android:src="@drawable/ic_edit"
-                android:contentDescription="Edit Group" />
+                android:src="@drawable/ic_edit" />
 
         </androidx.cardview.widget.CardView>
 

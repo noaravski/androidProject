@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
@@ -30,7 +31,7 @@ class AddExpenseFragment : Fragment() {
 
     private lateinit var amountField: EditText
     private lateinit var descriptionField: EditText
-    private lateinit var uploadButton: de.hdodenhof.circleimageview.CircleImageView
+    private lateinit var uploadButton: ImageView
     private lateinit var submitButton: Button
 
     private var selectedImageUri: Uri? = null

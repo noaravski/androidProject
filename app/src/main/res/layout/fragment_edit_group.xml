@@ -62,7 +62,7 @@
                     tools:layout_editor_absoluteX="-16dp" />
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/groupImage"
+                    android:id="@+id/groupImageEdit"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:layout_gravity="center"
@@ -70,6 +70,8 @@
                     android:src="@drawable/island"
                     app:civ_border_color="#EEEEEE"
                     app:civ_border_width="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     app:layout_constraintBottom_toTopOf="@+id/btnSave"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

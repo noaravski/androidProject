@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -21,7 +22,6 @@ import com.example.androidproject.utils.ProfileImageLoader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import de.hdodenhof.circleimageview.CircleImageView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,7 +43,7 @@ class GroupExpensesFragment : Fragment() {
     private lateinit var groupDescriptionTextView: TextView
     private lateinit var groupCurrency: TextView
     private lateinit var groupMembersCount: TextView
-    private lateinit var groupProfileImageView: CircleImageView
+    private lateinit var groupProfileImageView: ImageView
     private lateinit var currencySymbolText: TextView
     private lateinit var expenseSummaryText: TextView
 
@@ -238,7 +238,6 @@ class GroupExpensesFragment : Fragment() {
             }
     }
 
-    // Fix the calculateExpenseSummary method to properly show settlements and update with currency changes
     private fun calculateExpenseSummary() {
         if (expensesList.isEmpty()) {
             expenseSummaryText.visibility = View.GONE
@@ -262,7 +261,7 @@ class GroupExpensesFragment : Fragment() {
         }
 
         // Calculate average amount per person
-        val memberCount = max(currentGroup?.members?.size ?: 1, 1) // Ensure we don't divide by zero
+        val memberCount = max(currentGroup?.members?.size ?: 1, 1)
         val averagePerPerson = totalAmount / memberCount
 
         // Build summary text
@@ -275,13 +274,6 @@ class GroupExpensesFragment : Fragment() {
                 )
             }\n\n"
         )
-
-        // Add individual payments
-        summaryBuilder.append("Payments:\n")
-        for ((person, paid) in paidByMap) {
-            summaryBuilder.append("$person paid $currencySymbol${String.format("%.2f", paid)}\n")
-        }
-        summaryBuilder.append("\n")
 
         // Calculate who owes whom
         if (paidByMap.size > 1) {

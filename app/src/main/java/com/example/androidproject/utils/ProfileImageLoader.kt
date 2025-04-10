@@ -25,27 +25,26 @@ class ProfileImageLoader {
             val userId = auth.currentUser?.uid ?: return
 
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        val profileImageUrl =
-                            convertToHttps(document.getString("ImgUrl").toString())
+                if (document != null && document.exists()) {
+                    val profileImageUrl = convertToHttps(document.getString("ImgUrl").toString())
 
-                        if (!profileImageUrl.isNullOrEmpty()) {
-                            Glide.with(context).asBitmap().load(profileImageUrl)
-                                .placeholder(R.drawable.profile).error(R.drawable.profile)
-                                .circleCrop().into(imageView)
+                    if (!profileImageUrl.isNullOrEmpty()) {
+                        Glide.with(context).load(convertToHttps(profileImageUrl))
+                            .placeholder(R.drawable.profile).error(R.drawable.profile).circleCrop()
+                            .into(imageView)
 
 
-                        } else {
-                            imageView.setImageResource(R.drawable.profile)
-                        }
                     } else {
                         imageView.setImageResource(R.drawable.profile)
                     }
-                }.addOnFailureListener {
-                    // If loading fails, use default profile image
-                    Log.d("ProfileImageLoader", "Error loading profile image", it)
+                } else {
                     imageView.setImageResource(R.drawable.profile)
                 }
+            }.addOnFailureListener {
+                // If loading fails, use default profile image
+                Log.d("ProfileImageLoader", "Error loading profile image", it)
+                imageView.setImageResource(R.drawable.profile)
+            }
         }
 
         /**
@@ -55,23 +54,22 @@ class ProfileImageLoader {
             val db = FirebaseFirestore.getInstance()
 
             db.collection("users").document(userId).get().addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        val profileImageUrl =
-                            convertToHttps(document.getString("ImgUrl").toString())
-                        if (!profileImageUrl.isNullOrEmpty()) {
-                            Glide.with(context).load(profileImageUrl)
-                                .placeholder(R.drawable.profile).error(R.drawable.profile)
-                                .circleCrop().into(imageView)
-                        } else {
-                            imageView.setImageResource(R.drawable.profile)
-                        }
+                if (document != null && document.exists()) {
+                    val profileImageUrl = convertToHttps(document.getString("ImgUrl").toString())
+                    if (!profileImageUrl.isNullOrEmpty()) {
+                        Glide.with(context).load(convertToHttps(profileImageUrl))
+                            .placeholder(R.drawable.profile).error(R.drawable.profile).circleCrop()
+                            .into(imageView)
                     } else {
                         imageView.setImageResource(R.drawable.profile)
                     }
-                }.addOnFailureListener {
-                    // If loading fails, use default profile image
+                } else {
                     imageView.setImageResource(R.drawable.profile)
                 }
+            }.addOnFailureListener {
+                // If loading fails, use default profile image
+                imageView.setImageResource(R.drawable.profile)
+            }
         }
 
         /**
@@ -81,22 +79,33 @@ class ProfileImageLoader {
             val db = FirebaseFirestore.getInstance()
 
             db.collection("groups").document(groupId).get().addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        val imageUrl = convertToHttps(document.getString("imageUrl").toString())
-                        if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
-                            Glide.with(context).load(imageUrl).placeholder(R.drawable.island)
-                                .error(R.drawable.island).into(imageView)
-                        } else {
-                            imageView.setImageResource(R.drawable.island)
-                        }
+                if (document != null && document.exists()) {
+                    val imageUrl = convertToHttps(document.getString("imageUrl").toString())
+                    if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
+                        Glide.with(context).load(convertToHttps(imageUrl))
+                            .placeholder(R.drawable.island).error(R.drawable.island).into(imageView)
                     } else {
                         imageView.setImageResource(R.drawable.island)
                     }
-                }.addOnFailureListener {
-                    // If loading fails, use default image
+                } else {
                     imageView.setImageResource(R.drawable.island)
                 }
+            }.addOnFailureListener {
+                // If loading fails, use default image
+                imageView.setImageResource(R.drawable.island)
+            }
         }
+
+        fun loadImageFromUrl(context: Context, url: String, imageView: ImageView) {
+            val imageUrl = convertToHttps(url)
+            if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
+                Glide.with(context).load(imageUrl).placeholder(R.drawable.profile)
+                    .error(R.drawable.profile).into(imageView)
+            } else {
+                imageView.setImageResource(R.drawable.profile)
+            }
+        }
+
 
         /**
          * Loads an expense image into the provided ImageView
@@ -105,21 +114,22 @@ class ProfileImageLoader {
             val db = FirebaseFirestore.getInstance()
 
             db.collection("expenses").document(expenseId).get().addOnSuccessListener { document ->
-                    if (document != null && document.exists()) {
-                        val imageUrl = convertToHttps(document.getString("imgUrl").toString())
-                        if (!imageUrl.isNullOrEmpty()) {
-                            Glide.with(context).load(imageUrl).placeholder(R.drawable.ic_recipt)
-                                .error(R.drawable.ic_recipt).into(imageView)
-                        } else {
-                            imageView.setImageResource(R.drawable.ic_recipt)
-                        }
+                if (document != null && document.exists()) {
+                    val imageUrl = convertToHttps(document.getString("imgUrl").toString())
+                    if (!imageUrl.isNullOrEmpty()) {
+                        Glide.with(context).load(convertToHttps(imageUrl))
+                            .placeholder(R.drawable.ic_recipt).error(R.drawable.ic_recipt)
+                            .into(imageView)
                     } else {
                         imageView.setImageResource(R.drawable.ic_recipt)
                     }
-                }.addOnFailureListener {
-                    // If loading fails, use default image
+                } else {
                     imageView.setImageResource(R.drawable.ic_recipt)
                 }
+            }.addOnFailureListener {
+                // If loading fails, use default image
+                imageView.setImageResource(R.drawable.ic_recipt)
+            }
         }
 
         fun convertToHttps(url: String): String {

@@ -13,7 +13,7 @@
         android:background="@drawable/rounded_edit_text"
         android:padding="16dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <ImageView
             android:id="@+id/expenseImage"
             android:layout_width="60dp"
             android:layout_height="60dp"

@@ -61,7 +61,7 @@ class EditGroupFragment : Fragment() {
     ) { success ->
         if (success && selectedImageUri != null) {
             groupImage.setImageURI(selectedImageUri)
-            Glide.with(this).load(convertToHttps(selectedImageUri.toString())).into(groupImage)
+            Glide.with(this).load(selectedImageUri).into(groupImage)
             uploadImageToCloudinary()
         }
     }
@@ -88,7 +88,7 @@ class EditGroupFragment : Fragment() {
         groupNameEditText = view.findViewById(R.id.etGroupName)
         groupDescriptionEditText = view.findViewById(R.id.etGroupDescription)
         currencySpinner = view.findViewById(R.id.currencySpinner)
-        groupImage = view.findViewById(R.id.groupImage)
+        groupImage = view.findViewById(R.id.groupImageEdit)
         saveButton = view.findViewById(R.id.btnSave)
         groupNameLabel = view.findViewById(R.id.groupNameLabel)
         groupDescriptionLabel = view.findViewById(R.id.groupDescriptionLabel)
@@ -100,8 +100,13 @@ class EditGroupFragment : Fragment() {
         // Set up click listener for group image
         groupImage.setOnClickListener {
             checkCameraPermission()
-            loadGroupData(groupId)
+//            loadGroupData(groupId)
 
+            groupImage.setImageURI(selectedImageUri)
+
+            Glide.with(this)
+                .load(selectedImageUri.toString())
+                .into(groupImage)
         }
 
         // Set up save button
@@ -212,6 +217,7 @@ class EditGroupFragment : Fragment() {
                 selectedImageUri = it
                 takePictureLauncher.launch(it)
             }
+
         }
     }
 

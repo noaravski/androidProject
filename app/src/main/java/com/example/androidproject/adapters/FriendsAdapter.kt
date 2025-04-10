@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.model.User
+import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 
 class FriendsAdapter(private val friends: List<User>) :
     RecyclerView.Adapter<FriendsAdapter.FriendViewHolder>() {
@@ -53,7 +54,7 @@ class FriendsAdapter(private val friends: List<User>) :
             try {
                 if (!user.ImgUrl.isNullOrEmpty()) {
                     Glide.with(itemView.context)
-                        .load(user.ImgUrl)
+                        .load(convertToHttps(user.ImgUrl))
                         .placeholder(R.drawable.profile)
                         .error(R.drawable.profile)
                         .circleCrop()

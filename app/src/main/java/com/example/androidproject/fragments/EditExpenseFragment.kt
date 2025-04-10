@@ -23,6 +23,7 @@ import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.utils.CloudinaryHelper
+import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -34,7 +35,7 @@ class EditExpenseFragment : Fragment() {
     private lateinit var descriptionField: EditText
     private lateinit var amountField: EditText
     private lateinit var dateField: EditText
-    private lateinit var expenseImage: de.hdodenhof.circleimageview.CircleImageView
+    private lateinit var expenseImage: ImageView
     private lateinit var saveButton: Button
     private lateinit var deleteButton: Button
 
@@ -139,7 +140,7 @@ class EditExpenseFragment : Fragment() {
                     // Load image
                     if (!currentImageUrl.isNullOrEmpty()) {
                         context?.let { ctx ->
-                            Glide.with(ctx).load(currentImageUrl).placeholder(R.drawable.ic_recipt)
+                            Glide.with(ctx).load(convertToHttps(currentImageUrl.toString())).placeholder(R.drawable.ic_recipt)
                                 .error(R.drawable.ic_recipt).into(expenseImage)
                         }
                     } else {
@@ -203,7 +204,7 @@ class EditExpenseFragment : Fragment() {
                 takePictureLauncher.launch(it)
 
                 context?.let { ctx ->
-                    Glide.with(ctx).load(selectedImageUri).placeholder(R.drawable.ic_recipt)
+                    Glide.with(ctx).load(convertToHttps(selectedImageUri.toString())).placeholder(R.drawable.ic_recipt)
                         .error(R.drawable.ic_recipt).into(expenseImage)
                 }
             }
