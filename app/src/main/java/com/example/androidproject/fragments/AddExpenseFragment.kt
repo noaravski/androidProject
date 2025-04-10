@@ -30,7 +30,7 @@ class AddExpenseFragment : Fragment() {
 
     private lateinit var amountField: EditText
     private lateinit var descriptionField: EditText
-    private lateinit var uploadButton: ImageButton
+    private lateinit var uploadButton: de.hdodenhof.circleimageview.CircleImageView
     private lateinit var submitButton: Button
 
     private var selectedImageUri: Uri? = null
@@ -177,7 +177,7 @@ class AddExpenseFragment : Fragment() {
         db.collection("users").document(userId)
             .get()
             .addOnSuccessListener { document ->
-                val username = document.getString("Username") ?: "Me"
+                val username = document.getString("Username") ?: "I"
 
                 val expense = HashMap<String, Any>()
                 expense["amount"] = amount

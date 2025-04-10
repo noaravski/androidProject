@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.model.Group
 import android.widget.Toast
+import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 
 class GroupsAdapter(
     private val groups: List<Group>,
@@ -85,10 +86,12 @@ class GroupsAdapter(
 
             // Load group image
             if (!group.imageUrl.isNullOrEmpty() && group.imageUrl != "default") {
+                val httpsUrl = convertToHttps(group.imageUrl)
                 Glide.with(itemView.context)
-                    .load(group.imageUrl)
+                    .load(httpsUrl)
                     .placeholder(R.drawable.island)
                     .error(R.drawable.island)
+                    .circleCrop()
                     .into(groupImage)
             } else {
                 groupImage.setImageResource(R.drawable.island)

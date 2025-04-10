@@ -70,6 +70,9 @@ class MainFragment : Fragment() {
         groupsTextView = view.findViewById(R.id.groupsTextView)
         recyclerView = view.findViewById(R.id.recyclerView)
 
+        // Load user profile picture
+        loadUserProfilePicture()
+
         // Set up RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(context)
 
@@ -108,8 +111,6 @@ class MainFragment : Fragment() {
         friendsTextView.setOnClickListener { switchToFriendsTab() }
         groupsTextView.setOnClickListener { switchToGroupsTab() }
 
-        // Load user profile picture
-        loadUserProfilePicture()
 
         // Default to friends tab
         switchToFriendsTab()

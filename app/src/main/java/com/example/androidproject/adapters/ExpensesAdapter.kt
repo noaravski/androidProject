@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.model.Expense
+import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -53,10 +54,12 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
 
             // Load expense image
             if (!expense.imgUrl.isNullOrEmpty()) {
+                val httpsUrl = convertToHttps(expense.imgUrl)
                 Glide.with(itemView.context)
-                    .load(expense.imgUrl)
+                    .load(httpsUrl)
                     .placeholder(R.drawable.ic_recipt)
                     .error(R.drawable.ic_recipt)
+                    .centerCrop()
                     .into(expenseImage)
             } else {
                 expenseImage.setImageResource(R.drawable.ic_recipt)

@@ -1,11 +1,13 @@
 package com.example.androidproject.utils
 
 import android.content.Context
+import android.util.Log
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 
 /**
@@ -22,27 +24,26 @@ class ProfileImageLoader {
 
             val userId = auth.currentUser?.uid ?: return
 
-            db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener { document ->
+            db.collection("users").document(userId).get().addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        val profileImageUrl = document.getString("ImgUrl")
+                        val profileImageUrl =
+                            convertToHttps(document.getString("ImgUrl").toString())
+
                         if (!profileImageUrl.isNullOrEmpty()) {
-                            Glide.with(context)
-                                .load(profileImageUrl)
-                                .placeholder(R.drawable.profile)
-                                .error(R.drawable.profile)
-                                .circleCrop()
-                                .into(imageView)
+                            Glide.with(context).asBitmap().load(profileImageUrl)
+                                .placeholder(R.drawable.profile).error(R.drawable.profile)
+                                .circleCrop().into(imageView)
+
+
                         } else {
                             imageView.setImageResource(R.drawable.profile)
                         }
                     } else {
                         imageView.setImageResource(R.drawable.profile)
                     }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     // If loading fails, use default profile image
+                    Log.d("ProfileImageLoader", "Error loading profile image", it)
                     imageView.setImageResource(R.drawable.profile)
                 }
         }
@@ -53,26 +54,21 @@ class ProfileImageLoader {
         fun loadUserProfileImage(context: Context, userId: String, imageView: ImageView) {
             val db = FirebaseFirestore.getInstance()
 
-            db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener { document ->
+            db.collection("users").document(userId).get().addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        val profileImageUrl = document.getString("ImgUrl")
+                        val profileImageUrl =
+                            convertToHttps(document.getString("ImgUrl").toString())
                         if (!profileImageUrl.isNullOrEmpty()) {
-                            Glide.with(context)
-                                .load(profileImageUrl)
-                                .placeholder(R.drawable.profile)
-                                .error(R.drawable.profile)
-                                .circleCrop()
-                                .into(imageView)
+                            Glide.with(context).load(profileImageUrl)
+                                .placeholder(R.drawable.profile).error(R.drawable.profile)
+                                .circleCrop().into(imageView)
                         } else {
                             imageView.setImageResource(R.drawable.profile)
                         }
                     } else {
                         imageView.setImageResource(R.drawable.profile)
                     }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     // If loading fails, use default profile image
                     imageView.setImageResource(R.drawable.profile)
                 }
@@ -84,25 +80,19 @@ class ProfileImageLoader {
         fun loadGroupImage(context: Context, groupId: String, imageView: ImageView) {
             val db = FirebaseFirestore.getInstance()
 
-            db.collection("groups").document(groupId)
-                .get()
-                .addOnSuccessListener { document ->
+            db.collection("groups").document(groupId).get().addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        val imageUrl = document.getString("imageUrl")
+                        val imageUrl = convertToHttps(document.getString("imageUrl").toString())
                         if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
-                            Glide.with(context)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.island)
-                                .error(R.drawable.island)
-                                .into(imageView)
+                            Glide.with(context).load(imageUrl).placeholder(R.drawable.island)
+                                .error(R.drawable.island).into(imageView)
                         } else {
                             imageView.setImageResource(R.drawable.island)
                         }
                     } else {
                         imageView.setImageResource(R.drawable.island)
                     }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     // If loading fails, use default image
                     imageView.setImageResource(R.drawable.island)
                 }
@@ -114,28 +104,32 @@ class ProfileImageLoader {
         fun loadExpenseImage(context: Context, expenseId: String, imageView: ImageView) {
             val db = FirebaseFirestore.getInstance()
 
-            db.collection("expenses").document(expenseId)
-                .get()
-                .addOnSuccessListener { document ->
+            db.collection("expenses").document(expenseId).get().addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
-                        val imageUrl = document.getString("imgUrl")
+                        val imageUrl = convertToHttps(document.getString("imgUrl").toString())
                         if (!imageUrl.isNullOrEmpty()) {
-                            Glide.with(context)
-                                .load(imageUrl)
-                                .placeholder(R.drawable.ic_recipt)
-                                .error(R.drawable.ic_recipt)
-                                .into(imageView)
+                            Glide.with(context).load(imageUrl).placeholder(R.drawable.ic_recipt)
+                                .error(R.drawable.ic_recipt).into(imageView)
                         } else {
                             imageView.setImageResource(R.drawable.ic_recipt)
                         }
                     } else {
                         imageView.setImageResource(R.drawable.ic_recipt)
                     }
-                }
-                .addOnFailureListener {
+                }.addOnFailureListener {
                     // If loading fails, use default image
                     imageView.setImageResource(R.drawable.ic_recipt)
                 }
+        }
+
+        fun convertToHttps(url: String): String {
+            return if (url.startsWith("http://")) {
+                url.replaceFirst("http://", "https://")
+            } else if (!url.startsWith("https://")) {
+                "https://$url"
+            } else {
+                url
+            }
         }
     }
 }
