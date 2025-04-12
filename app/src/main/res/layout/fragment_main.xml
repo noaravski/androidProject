@@ -47,6 +47,7 @@
         app:layout_constraintTop_toBottomOf="@+id/ivProfilePic">
 
         <LinearLayout
+            android:background="#E0EBE5"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
@@ -68,6 +69,7 @@
                     android:gravity="center"
                     android:layout_weight="1"
                     android:background="@drawable/tab_selected_background"
+                    android:backgroundTint="#E0EBE5"
                     android:padding="8dp"
                     android:text="FRIENDS"
                     android:textAlignment="center"
@@ -81,6 +83,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:padding="8dp"
+                    android:backgroundTint="#E0EBE5"
                     android:text="GROUPS"
                     android:textAlignment="center"
                     android:textColor="#757575"
