@@ -133,8 +133,9 @@ class GroupExpensesFragment : Fragment() {
         fetchExchangeRates()
 
         // Load group data and expenses
-        loadGroupData(groupId)
-        loadExpenses(groupId)
+        loadGroupData(groupId) {
+            loadExpenses(groupId)
+        }
     }
 
     private fun loadUserProfileImage(groupId: String) {
@@ -143,7 +144,7 @@ class GroupExpensesFragment : Fragment() {
         }
     }
 
-    private fun loadGroupData(groupId: String) {
+    private fun loadGroupData(groupId: String, onComplete: () -> Unit) {
         db.collection("groups").document(groupId)
             .get()
             .addOnSuccessListener { documentSnapshot ->
@@ -180,6 +181,7 @@ class GroupExpensesFragment : Fragment() {
 
                         loadUserProfileImage(groupId)
                     }
+                    onComplete()
                 }
             }
             .addOnFailureListener {
@@ -261,7 +263,7 @@ class GroupExpensesFragment : Fragment() {
         }
 
         // Calculate average amount per person
-        val memberCount = max(currentGroup?.members?.size ?: 1, 1)
+        val memberCount = expensesList.map { it.paidBy }.distinct().size
         val averagePerPerson = totalAmount / memberCount
 
         // Build summary text
@@ -286,9 +288,9 @@ class GroupExpensesFragment : Fragment() {
 
             for ((person, paid) in paidByMap) {
                 val diff = paid - averagePerPerson
-                if (diff < -0.01) { // Debtor
+                if (diff < 0) { // Debtor
                     debtors.add(Pair(person, -diff)) // Store how much they owe
-                } else if (diff > 0.01) { // Creditor
+                } else if (diff > 0) { // Creditor
                     creditors.add(Pair(person, diff)) // Store how much they're owed
                 }
             }
@@ -309,7 +311,7 @@ class GroupExpensesFragment : Fragment() {
                         // Calculate how much this debtor pays this creditor
                         val payment = minOf(remainingDebt, creditAmount)
 
-                        if (payment > 0.01) { // Only show meaningful payments
+                        if (payment > 0) { // Only show meaningful payments
                             summaryBuilder.append(
                                 "$debtor owes $creditor $currencySymbol${
                                     String.format(

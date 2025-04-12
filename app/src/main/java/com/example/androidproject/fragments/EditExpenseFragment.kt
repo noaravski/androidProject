@@ -204,7 +204,7 @@ class EditExpenseFragment : Fragment() {
                 takePictureLauncher.launch(it)
 
                 context?.let { ctx ->
-                    Glide.with(ctx).load(convertToHttps(selectedImageUri.toString())).placeholder(R.drawable.ic_recipt)
+                    Glide.with(ctx).load(selectedImageUri).placeholder(R.drawable.ic_recipt)
                         .error(R.drawable.ic_recipt).into(expenseImage)
                 }
             }
