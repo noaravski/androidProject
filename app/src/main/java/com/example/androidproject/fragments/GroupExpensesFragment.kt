@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -18,10 +17,11 @@ import com.example.androidproject.R
 import com.example.androidproject.adapters.ExpensesAdapter
 import com.example.androidproject.model.Expense
 import com.example.androidproject.model.Group
-import com.example.androidproject.utils.ProfileImageLoader
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.Query
+import de.hdodenhof.circleimageview.CircleImageView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -43,7 +43,7 @@ class GroupExpensesFragment : Fragment() {
     private lateinit var groupDescriptionTextView: TextView
     private lateinit var groupCurrency: TextView
     private lateinit var groupMembersCount: TextView
-    private lateinit var groupProfileImageView: ImageView
+    private lateinit var profileImage: CircleImageView
     private lateinit var currencySymbolText: TextView
     private lateinit var expenseSummaryText: TextView
 
@@ -82,17 +82,28 @@ class GroupExpensesFragment : Fragment() {
         loadingBar = view.findViewById(R.id.loadingBar)
         addExpenseButton = view.findViewById(R.id.cvAddExpense)
         changeCurrencyButton = view.findViewById(R.id.cvDollarIcon)
-        editGroupButton = view.findViewById(R.id.cvEditGroup) // Add this to your layout
+        editGroupButton = view.findViewById(R.id.cvEditGroup)
         locationText = view.findViewById(R.id.locationText)
         groupDescriptionTextView = view.findViewById(R.id.groupDescriptionTextView)
         groupCurrency = view.findViewById(R.id.groupCurrency)
         groupMembersCount = view.findViewById(R.id.groupMembersCount)
-        groupProfileImageView = view.findViewById(R.id.groupProfileImage)
+        profileImage = view.findViewById(R.id.groupProfileImage)
         currencySymbolText = view.findViewById(R.id.changeCurrency)
         expenseSummaryText = view.findViewById(R.id.expenseSummaryText)
 
-        // Set up RecyclerView
-        expensesRecyclerView.layoutManager = LinearLayoutManager(context)
+        // Set up RecyclerView with padding to account for bottom navigation
+        val layoutManager = LinearLayoutManager(context)
+        expensesRecyclerView.layoutManager = layoutManager
+
+        // Add bottom padding to RecyclerView to prevent last item from being hidden
+        expensesRecyclerView.setPadding(
+            expensesRecyclerView.paddingLeft,
+            expensesRecyclerView.paddingTop,
+            expensesRecyclerView.paddingRight,
+            resources.getDimensionPixelSize(R.dimen.bottom_nav_height) // Use a dimension resource or hardcode the height (e.g., 56dp)
+        )
+        expensesRecyclerView.clipToPadding = false
+
         expensesAdapter = ExpensesAdapter(expensesList)
         expensesAdapter.setOnItemClickListener { expense ->
             // Navigate to edit expense fragment
@@ -102,9 +113,7 @@ class GroupExpensesFragment : Fragment() {
                 )
             findNavController().navigate(action)
         }
-
         expensesRecyclerView.adapter = expensesAdapter
-        expensesAdapter.notifyDataSetChanged()
 
         // Set up click listener for add expense button
         addExpenseButton.setOnClickListener {
@@ -133,18 +142,12 @@ class GroupExpensesFragment : Fragment() {
         fetchExchangeRates()
 
         // Load group data and expenses
-        loadGroupData(groupId) {
-            loadExpenses(groupId)
-        }
+        loadGroupData(groupId)
+        loadExpenses(groupId)
     }
 
-    private fun loadUserProfileImage(groupId: String) {
-        context?.let { ctx ->
-            ProfileImageLoader.loadGroupImage(ctx,groupId, groupProfileImageView)
-        }
-    }
-
-    private fun loadGroupData(groupId: String, onComplete: () -> Unit) {
+    // Fix the loadGroupData method to properly load group images
+    private fun loadGroupData(groupId: String) {
         db.collection("groups").document(groupId)
             .get()
             .addOnSuccessListener { documentSnapshot ->
@@ -179,9 +182,21 @@ class GroupExpensesFragment : Fragment() {
                         groupMembersCount.text = "Members: ${members.size}"
                         currencySymbolText.text = getCurrencySymbol(currentGroup?.currency ?: "USD")
 
-                        loadUserProfileImage(groupId)
+                        // Load group image from Firestore
+                        context?.let { ctx ->
+                            val imageUrl = currentGroup?.imageUrl
+                            if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
+                                // Load the image directly using Glide
+                                com.bumptech.glide.Glide.with(ctx)
+                                    .load(imageUrl)
+                                    .placeholder(R.drawable.island)
+                                    .error(R.drawable.island)
+                                    .into(profileImage)
+                            } else {
+                                profileImage.setImageResource(R.drawable.island)
+                            }
+                        }
                     }
-                    onComplete()
                 }
             }
             .addOnFailureListener {
@@ -195,9 +210,10 @@ class GroupExpensesFragment : Fragment() {
         // Remove previous listener if exists
         expensesListener?.remove()
 
-        // Set up real-time listener for expenses
+        // Set up real-time listener for expenses, ordered by date (newest first)
         expensesListener = db.collection("expenses")
             .whereEqualTo("groupName", groupId)
+            .orderBy("date", Query.Direction.DESCENDING) // Sort by date, newest first
             .addSnapshotListener { snapshot, error ->
                 loadingBar.visibility = View.GONE
 
@@ -263,7 +279,7 @@ class GroupExpensesFragment : Fragment() {
         }
 
         // Calculate average amount per person
-        val memberCount = expensesList.map { it.paidBy }.distinct().size
+        val memberCount = max(currentGroup?.members?.size ?: 1, 1) // Ensure we don't divide by zero
         val averagePerPerson = totalAmount / memberCount
 
         // Build summary text
@@ -277,10 +293,20 @@ class GroupExpensesFragment : Fragment() {
             }\n\n"
         )
 
-        // Calculate who owes whom
-        if (paidByMap.size > 1) {
-            summaryBuilder.append("Settlements:\n")
+        // Add individual payments
+        summaryBuilder.append("Payments:\n")
+        for ((person, paid) in paidByMap) {
+            summaryBuilder.append("$person paid $currencySymbol${String.format("%.2f", paid)}\n")
+        }
+        summaryBuilder.append("\n")
 
+        // Calculate who owes whom - always show this section even if there's only one person
+        summaryBuilder.append("Settlements:\n")
+
+        if (paidByMap.size <= 1 || memberCount <= 1) {
+            // Handle edge case of only one person
+            summaryBuilder.append("No settlements needed with only one person.\n")
+        } else {
             // Create a list of people who paid less than average (debtors)
             val debtors = mutableListOf<Pair<String, Double>>()
             // Create a list of people who paid more than average (creditors)
@@ -288,9 +314,9 @@ class GroupExpensesFragment : Fragment() {
 
             for ((person, paid) in paidByMap) {
                 val diff = paid - averagePerPerson
-                if (diff < 0) { // Debtor
+                if (diff < -0.01) { // Debtor
                     debtors.add(Pair(person, -diff)) // Store how much they owe
-                } else if (diff > 0) { // Creditor
+                } else if (diff > 0.01) { // Creditor
                     creditors.add(Pair(person, diff)) // Store how much they're owed
                 }
             }
@@ -301,33 +327,37 @@ class GroupExpensesFragment : Fragment() {
             creditors.sortByDescending { it.second }
 
             // For each debtor, find creditors to pay
-            for ((debtor, debtAmount) in debtors) {
-                var remainingDebt = debtAmount
+            if (debtors.isEmpty() || creditors.isEmpty()) {
+                summaryBuilder.append("Everyone paid equally.\n")
+            } else {
+                for ((debtor, debtAmount) in debtors) {
+                    var remainingDebt = debtAmount
 
-                for (i in creditors.indices) {
-                    val (creditor, creditAmount) = creditors[i]
+                    for (i in creditors.indices) {
+                        val (creditor, creditAmount) = creditors[i]
 
-                    if (creditAmount > 0 && remainingDebt > 0) {
-                        // Calculate how much this debtor pays this creditor
-                        val payment = minOf(remainingDebt, creditAmount)
+                        if (creditAmount > 0 && remainingDebt > 0) {
+                            // Calculate how much this debtor pays this creditor
+                            val payment = minOf(remainingDebt, creditAmount)
 
-                        if (payment > 0) { // Only show meaningful payments
-                            summaryBuilder.append(
-                                "$debtor owes $creditor $currencySymbol${
-                                    String.format(
-                                        "%.2f",
-                                        payment
-                                    )
-                                }\n"
-                            )
+                            if (payment > 0.01) { // Only show meaningful payments
+                                summaryBuilder.append(
+                                    "$debtor owes $creditor $currencySymbol${
+                                        String.format(
+                                            "%.2f",
+                                            payment
+                                        )
+                                    }\n"
+                                )
 
-                            // Update remaining amounts
-                            remainingDebt -= payment
-                            creditors[i] = Pair(creditor, creditAmount - payment)
+                                // Update remaining amounts
+                                remainingDebt -= payment
+                                creditors[i] = Pair(creditor, creditAmount - payment)
+                            }
                         }
-                    }
 
-                    if (remainingDebt <= 0.01) break
+                        if (remainingDebt <= 0.01) break
+                    }
                 }
             }
         }
