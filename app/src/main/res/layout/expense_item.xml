@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="1dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_edit_text"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/expenseImage"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/ic_recipt"
+            app:civ_border_color="#EEEEEE"
+            app:civ_border_width="2dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@tools:sample/avatars"/>
+
+        <TextView
+            android:id="@+id/expenseTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/expenseAmount"
+            app:layout_constraintStart_toEndOf="@+id/expenseImage"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Ice Cream" />
+
+        <TextView
+            android:id="@+id/expenseDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/expenseAmount"
+            app:layout_constraintStart_toEndOf="@+id/expenseImage"
+            app:layout_constraintTop_toBottomOf="@+id/expenseTitle"
+            tools:text="oreo ice cream" />
+
+        <TextView
+            android:id="@+id/expenseStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/expenseAmount"
+            app:layout_constraintStart_toEndOf="@+id/expenseImage"
+            app:layout_constraintTop_toBottomOf="@+id/expenseDate"
+            tools:text="You owe Noa" />
+
+        <TextView
+            android:id="@+id/expenseAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="500$"
+            tools:textColor="@android:color/holo_red_dark" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>
