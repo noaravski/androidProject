@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
@@ -16,19 +17,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidproject.R
 import com.example.androidproject.adapters.ExpensesAdapter
 import com.example.androidproject.model.Expense
-import com.example.androidproject.model.Group
+import com.example.androidproject.viewmodel.GroupExpensesViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
+import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
+import com.example.androidproject.utils.ProfileImageLoader
+import com.example.androidproject.utils.CurrencyConverter
 import de.hdodenhof.circleimageview.CircleImageView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Path
 import kotlin.math.max
 
 class GroupExpensesFragment : Fragment() {
@@ -36,26 +32,22 @@ class GroupExpensesFragment : Fragment() {
     private lateinit var expensesRecyclerView: RecyclerView
     private lateinit var noExpensesTextView: TextView
     private lateinit var loadingBar: ProgressBar
-    private lateinit var addExpenseButton: CardView
-    private lateinit var changeCurrencyButton: CardView
-    private lateinit var editGroupButton: CardView
+    private lateinit var addExpenseButton: TextView
+    private lateinit var changeCurrencyButton: TextView
+    private lateinit var editGroupButton: ImageView
+    private lateinit var filterButton: ImageView
     private lateinit var locationText: TextView
     private lateinit var groupDescriptionTextView: TextView
     private lateinit var groupCurrency: TextView
     private lateinit var groupMembersCount: TextView
     private lateinit var profileImage: CircleImageView
-    private lateinit var currencySymbolText: TextView
     private lateinit var expenseSummaryText: TextView
+
+    private lateinit var viewModel: GroupExpensesViewModel
+    private lateinit var expensesAdapter: ExpensesAdapter
 
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
-
-    private lateinit var expensesAdapter: ExpensesAdapter
-    private val expensesList = mutableListOf<Expense>()
-
-    private var currentGroup: Group? = null
-    private var exchangeRates: Map<String, Double>? = null
-    private var expensesListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -72,6 +64,9 @@ class GroupExpensesFragment : Fragment() {
         val args: GroupExpensesFragmentArgs by navArgs()
         val groupId = args.groupId
 
+        // Initialize ViewModel
+        viewModel = ViewModelProvider(this)[GroupExpensesViewModel::class.java]
+
         // Initialize Firebase
         db = FirebaseFirestore.getInstance()
         auth = FirebaseAuth.getInstance()
@@ -80,15 +75,15 @@ class GroupExpensesFragment : Fragment() {
         expensesRecyclerView = view.findViewById(R.id.expensesRecyclerView)
         noExpensesTextView = view.findViewById(R.id.noExpensesTextView)
         loadingBar = view.findViewById(R.id.loadingBar)
-        addExpenseButton = view.findViewById(R.id.cvAddExpense)
-        changeCurrencyButton = view.findViewById(R.id.cvDollarIcon)
-        editGroupButton = view.findViewById(R.id.cvEditGroup)
+        addExpenseButton = view.findViewById(R.id.addExpense)
+        changeCurrencyButton = view.findViewById(R.id.changeCurrency)
+        editGroupButton = view.findViewById(R.id.editGroupIcon)
+        filterButton = view.findViewById(R.id.filterIcon)
         locationText = view.findViewById(R.id.locationText)
         groupDescriptionTextView = view.findViewById(R.id.groupDescriptionTextView)
         groupCurrency = view.findViewById(R.id.groupCurrency)
         groupMembersCount = view.findViewById(R.id.groupMembersCount)
         profileImage = view.findViewById(R.id.groupProfileImage)
-        currencySymbolText = view.findViewById(R.id.changeCurrency)
         expenseSummaryText = view.findViewById(R.id.expenseSummaryText)
 
         // Set up RecyclerView with padding to account for bottom navigation
@@ -100,186 +95,262 @@ class GroupExpensesFragment : Fragment() {
             expensesRecyclerView.paddingLeft,
             expensesRecyclerView.paddingTop,
             expensesRecyclerView.paddingRight,
-            resources.getDimensionPixelSize(R.dimen.bottom_nav_height) // Use a dimension resource or hardcode the height (e.g., 56dp)
+            resources.getDimensionPixelSize(R.dimen.bottom_nav_height)
         )
         expensesRecyclerView.clipToPadding = false
 
-        expensesAdapter = ExpensesAdapter(expensesList)
+        // Initialize adapter with empty list and set click listener
+        expensesAdapter = ExpensesAdapter(emptyList())
         expensesAdapter.setOnItemClickListener { expense ->
-            // Navigate to edit expense fragment
-            val action =
-                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToEditExpenseFragment(
-                    expense.id
-                )
+            val action = GroupExpensesFragmentDirections
+                .actionGroupExpensesFragmentToEditExpenseFragment(expense.id)
             findNavController().navigate(action)
         }
         expensesRecyclerView.adapter = expensesAdapter
 
-        // Set up click listener for add expense button
+        // Set up click listeners
         addExpenseButton.setOnClickListener {
-            val action =
-                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToAddExpenseFragment(
-                    groupId
-                )
+            val action = GroupExpensesFragmentDirections.actionGroupExpensesFragmentToAddExpenseFragment(groupId)
             findNavController().navigate(action)
         }
 
-        // Set up click listener for change currency button
         changeCurrencyButton.setOnClickListener {
             showCurrencySelectionDialog()
         }
 
-        // Set up click listener for edit group button
         editGroupButton.setOnClickListener {
-            val action =
-                GroupExpensesFragmentDirections.actionGroupExpensesFragmentToEditGroupFragment(
-                    groupId
-                )
+            val action = GroupExpensesFragmentDirections.actionGroupExpensesFragmentToEditGroupFragment(groupId)
             findNavController().navigate(action)
         }
 
-        // Load exchange rates
-        fetchExchangeRates()
+        filterButton.setOnClickListener {
+            viewModel.toggleExpenseFilter()
+        }
 
-        // Load group data and expenses
-        loadGroupData(groupId)
-        loadExpenses(groupId)
+        // Set up observers
+        setupObservers(groupId)
+
+        // Load data - ensure we load group first, then expenses
+        viewModel.loadGroup(groupId)
+        viewModel.loadExpenses(groupId)
+
+        // Explicitly set the initial filter state to show all expenses
+        viewModel.setInitialFilterState()
     }
 
-    // Fix the loadGroupData method to properly load group images
-    private fun loadGroupData(groupId: String) {
-        db.collection("groups").document(groupId)
-            .get()
-            .addOnSuccessListener { documentSnapshot ->
-                if (documentSnapshot.exists()) {
-                    val data = documentSnapshot.data
-                    if (data != null) {
-                        val members =
-                            data.getOrDefault("members", listOf<String>()) as? List<String>
-                                ?: listOf()
+    private fun setupObservers(groupId: String) {
+        // Observe group data
+        viewModel.group.observe(viewLifecycleOwner) { group ->
+            group?.let {
+                locationText.text = it.groupName
+                groupDescriptionTextView.text = it.description
+                groupCurrency.text = "Currency: ${it.currency}"
+                groupMembersCount.text = "Members: ${it.members.size}"
+                changeCurrencyButton.text = getCurrencySymbol(it.currency)
 
-                        // Handle createdBy as String
-                        val createdBy = when (val createdByValue = data["createdBy"]) {
-                            is String -> createdByValue
-                            else -> ""
-                        }
-
-                        currentGroup = Group(
-                            id = documentSnapshot.id,
-                            groupName = data.getOrDefault("groupName", "Group").toString(),
-                            description = data.getOrDefault("description", "").toString(),
-                            createdBy = createdBy,
-                            createdAt = data.getOrDefault("createdAt", 0L) as Long,
-                            imageUrl = data.getOrDefault("imageUrl", null) as? String,
-                            currency = data.getOrDefault("currency", "USD").toString(),
-                            members = members
-                        )
-
-                        // Update UI with group data
-                        locationText.text = currentGroup?.groupName
-                        groupDescriptionTextView.text = currentGroup?.description
-                        groupCurrency.text = "Currency: ${currentGroup?.currency}"
-                        groupMembersCount.text = "Members: ${members.size}"
-                        currencySymbolText.text = getCurrencySymbol(currentGroup?.currency ?: "USD")
-
-                        // Load group image from Firestore
-                        context?.let { ctx ->
-                            val imageUrl = currentGroup?.imageUrl
-                            if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
-                                // Load the image directly using Glide
-                                com.bumptech.glide.Glide.with(ctx)
-                                    .load(imageUrl)
-                                    .placeholder(R.drawable.island)
-                                    .error(R.drawable.island)
-                                    .into(profileImage)
-                            } else {
-                                profileImage.setImageResource(R.drawable.island)
-                            }
-                        }
+                // Load group image
+                context?.let { ctx ->
+                    val imageUrl = it.imageUrl
+                    if (!imageUrl.isNullOrEmpty() && imageUrl != "default") {
+                        Glide.with(ctx)
+                            .load(ProfileImageLoader.convertToHttps(imageUrl))
+                            .placeholder(R.drawable.island)
+                            .error(R.drawable.island)
+                            .into(profileImage)
+                    } else {
+                        profileImage.setImageResource(R.drawable.island)
                     }
                 }
             }
-            .addOnFailureListener {
-                // Handle error
+        }
+
+        // Observe filtered expenses
+        viewModel.filteredExpenses.observe(viewLifecycleOwner) { expenses ->
+            // Debug log to check if we're getting expenses
+            android.util.Log.d("GroupExpensesFragment", "Received ${expenses?.size ?: 0} filtered expenses")
+
+            if (expenses.isNullOrEmpty()) {
+                noExpensesTextView.visibility = View.VISIBLE
+                expensesRecyclerView.visibility = View.GONE
+                expenseSummaryText.visibility = View.GONE
+            } else {
+                noExpensesTextView.visibility = View.GONE
+                expensesRecyclerView.visibility = View.VISIBLE
+                expenseSummaryText.visibility = View.VISIBLE
+
+                // Update adapter with the new expenses
+                expensesAdapter.updateExpenses(expenses)
+
+                // Calculate and display expense summary
+                calculateExpenseSummary(expenses)
             }
+        }
+
+        // Also observe the non-filtered expenses as a fallback
+        viewModel.expenses.observe(viewLifecycleOwner) { expenses ->
+            android.util.Log.d("GroupExpensesFragment", "Raw expenses count: ${expenses?.size ?: 0}")
+
+            // If we have expenses but filteredExpenses is empty, it might be a filter issue
+            if (!expenses.isNullOrEmpty() && viewModel.filteredExpenses.value.isNullOrEmpty()) {
+                // Force the ViewModel to apply the initial filter state
+                viewModel.setInitialFilterState()
+            }
+        }
+
+        // Observe loading state
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            loadingBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        }
+
+        // Observe error messages
+        viewModel.errorMessage.observe(viewLifecycleOwner) { message ->
+            if (!message.isNullOrEmpty()) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Observe filter state
+        viewModel.showOnlyMyExpenses.observe(viewLifecycleOwner) { showOnlyMine ->
+            filterButton.setImageResource(
+                if (showOnlyMine) R.drawable.ic_person else R.drawable.ic_group
+            )
+        }
     }
 
-    private fun loadExpenses(groupId: String) {
+    private fun showCurrencySelectionDialog() {
+        val currencies = arrayOf("USD", "EUR", "GBP", "JPY", "CAD", "AUD", "ILS")
+
+        context?.let { ctx ->
+            android.app.AlertDialog.Builder(ctx)
+                .setTitle("Select Currency")
+                .setItems(currencies) { _, which ->
+                    val selectedCurrency = currencies[which]
+                    updateGroupCurrency(selectedCurrency)
+                }
+                .show()
+        }
+    }
+
+    private fun updateGroupCurrency(newCurrency: String) {
+        val group = viewModel.group.value ?: return
+        if (group.currency == newCurrency) return
+
+        val oldCurrency = group.currency
+        val groupId = group.id
+
+        // Disable UI elements during update
+        changeCurrencyButton.isEnabled = false
         loadingBar.visibility = View.VISIBLE
 
-        // Remove previous listener if exists
-        expensesListener?.remove()
+        // Update group in Firestore
+        db.collection("groups").document(groupId)
+            .update("currency", newCurrency)
+            .addOnSuccessListener {
+                // Update UI
+                groupCurrency.text = "Currency: $newCurrency"
+                changeCurrencyButton.text = getCurrencySymbol(newCurrency)
 
-        // Set up real-time listener for expenses, ordered by date (newest first)
-        expensesListener = db.collection("expenses")
-            .whereEqualTo("groupName", groupId)
-            .orderBy("date", Query.Direction.DESCENDING) // Sort by date, newest first
-            .addSnapshotListener { snapshot, error ->
+                // Update the group in the ViewModel
+                val updatedGroup = group.copy(currency = newCurrency)
+                viewModel.updateGroupInViewModel(updatedGroup)
+
+                // Convert all expenses to new currency
+                convertExpensesToNewCurrency(oldCurrency, newCurrency)
+            }
+            .addOnFailureListener { e ->
+                // Re-enable UI elements
+                changeCurrencyButton.isEnabled = true
                 loadingBar.visibility = View.GONE
 
-                if (error != null) {
-                    // Handle error
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    expensesList.clear()
-
-                    for (document in snapshot.documents) {
-                        val expense = Expense(
-                            id = document.id,
-                            amount = document.getDouble("amount") ?: 0.0,
-                            description = document.getString("description") ?: "",
-                            groupName = document.getString("groupName") ?: "",
-                            paidBy = document.getString("paidBy") ?: "",
-                            date = document.getLong("date") ?: 0,
-                            imgUrl = document.getString("imgUrl"),
-                            currency = document.getString("currency") ?: "USD"
-                        )
-                        expensesList.add(expense)
-                    }
-
-                    if (expensesList.isEmpty()) {
-                        noExpensesTextView.visibility = View.VISIBLE
-                        expensesRecyclerView.visibility = View.GONE
-                        expenseSummaryText.visibility = View.GONE
-                    } else {
-                        noExpensesTextView.visibility = View.GONE
-                        expensesRecyclerView.visibility = View.VISIBLE
-                        expenseSummaryText.visibility = View.VISIBLE
-                        expensesAdapter.notifyDataSetChanged()
-
-                        // Calculate and display expense summary
-                        calculateExpenseSummary()
-                    }
-                }
+                Toast.makeText(context, "Error updating currency: ${e.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-    private fun calculateExpenseSummary() {
-        if (expensesList.isEmpty()) {
+    private fun convertExpensesToNewCurrency(oldCurrency: String, newCurrency: String) {
+        val groupId = viewModel.group.value?.id ?: return
+
+        // Show loading indicator
+        loadingBar.visibility = View.VISIBLE
+
+        // Use CurrencyConverter to get exchange rate
+        CurrencyConverter.getExchangeRate(oldCurrency, newCurrency,
+            onSuccess = { rate ->
+                // Update expenses with the new currency and converted amounts
+                db.collection("expenses")
+                    .whereEqualTo("groupName", groupId)
+                    .get()
+                    .addOnSuccessListener { documents ->
+                        val batch = db.batch()
+
+                        for (document in documents) {
+                            val expenseRef = db.collection("expenses").document(document.id)
+                            val currentAmount = document.getDouble("amount") ?: 0.0
+                            val newAmount = currentAmount * rate
+
+                            batch.update(expenseRef, "currency", newCurrency)
+                            batch.update(expenseRef, "amount", newAmount)
+                        }
+
+                        batch.commit().addOnSuccessListener {
+                            // Refresh expenses after batch update
+                            viewModel.loadExpenses(groupId)
+                            loadingBar.visibility = View.GONE
+                            changeCurrencyButton.isEnabled = true
+
+                            Toast.makeText(context,
+                                "Currency updated to $newCurrency with rate: $rate",
+                                Toast.LENGTH_SHORT).show()
+                        }.addOnFailureListener { e ->
+                            loadingBar.visibility = View.GONE
+                            changeCurrencyButton.isEnabled = true
+                            Toast.makeText(context,
+                                "Error updating expenses: ${e.message}",
+                                Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        loadingBar.visibility = View.GONE
+                        changeCurrencyButton.isEnabled = true
+                        Toast.makeText(context,
+                            "Error fetching expenses: ${e.message}",
+                            Toast.LENGTH_SHORT).show()
+                    }
+            },
+            onError = { error ->
+                loadingBar.visibility = View.GONE
+                changeCurrencyButton.isEnabled = true
+                Toast.makeText(context,
+                    "Error getting exchange rate: $error",
+                    Toast.LENGTH_SHORT).show()
+            }
+        )
+    }
+
+    private fun calculateExpenseSummary(expenses: List<Expense>) {
+        if (expenses.isEmpty()) {
             expenseSummaryText.visibility = View.GONE
             return
         }
 
         expenseSummaryText.visibility = View.VISIBLE
 
-        val totalAmount = expensesList.sumOf { it.amount }
-        val currency = currentGroup?.currency ?: "USD"
+        val totalAmount = expenses.sumOf { it.amount }
+        val group = viewModel.group.value
+        val currency = group?.currency ?: "USD"
         val currencySymbol = getCurrencySymbol(currency)
 
         // Map to track how much each person paid
         val paidByMap = mutableMapOf<String, Double>()
 
         // Calculate how much each person paid
-        for (expense in expensesList) {
+        for (expense in expenses) {
             val paidBy = expense.paidBy
             val amount = expense.amount
             paidByMap[paidBy] = (paidByMap[paidBy] ?: 0.0) + amount
         }
 
         // Calculate average amount per person
-        val memberCount = max(currentGroup?.members?.size ?: 1, 1) // Ensure we don't divide by zero
+        val memberCount = max(group?.members?.size ?: 1, 1) // Ensure we don't divide by zero
         val averagePerPerson = totalAmount / memberCount
 
         // Build summary text
@@ -366,109 +437,6 @@ class GroupExpensesFragment : Fragment() {
         expenseSummaryText.text = summaryBuilder.toString()
     }
 
-    private fun fetchExchangeRates() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.exchangerate-api.com/v4/latest/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val exchangeRateService = retrofit.create(ExchangeRateService::class.java)
-
-        exchangeRateService.getExchangeRates("USD")
-            .enqueue(object : Callback<ExchangeRateResponse> {
-                override fun onResponse(
-                    call: Call<ExchangeRateResponse>,
-                    response: Response<ExchangeRateResponse>
-                ) {
-                    if (response.isSuccessful) {
-                        exchangeRates = response.body()?.rates
-                    }
-                }
-
-                override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
-                    // Handle error
-                }
-            })
-    }
-
-    private fun showCurrencySelectionDialog() {
-        val currencies = arrayOf("USD", "EUR", "GBP", "JPY", "CAD", "AUD", "ILS")
-
-        context?.let { ctx ->
-            android.app.AlertDialog.Builder(ctx)
-                .setTitle("Select Currency")
-                .setItems(currencies) { _, which ->
-                    val selectedCurrency = currencies[which]
-                    updateGroupCurrency(selectedCurrency)
-                }
-                .show()
-        }
-    }
-
-    private fun updateGroupCurrency(newCurrency: String) {
-        if (currentGroup?.currency == newCurrency) return
-
-        val oldCurrency = currentGroup?.currency ?: "USD"
-        val groupId = currentGroup?.id ?: return
-
-        // Update group in Firestore
-        db.collection("groups").document(groupId)
-            .update("currency", newCurrency)
-            .addOnSuccessListener {
-                // Update UI
-                currentGroup?.currency = newCurrency
-                groupCurrency.text = "Currency: $newCurrency"
-                currencySymbolText.text = getCurrencySymbol(newCurrency)
-
-                // Convert all expenses to new currency
-                convertExpensesToNewCurrency(oldCurrency, newCurrency)
-
-                Toast.makeText(context, "Currency updated to $newCurrency", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(context, "Error updating currency: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-            }
-    }
-
-    private fun convertExpensesToNewCurrency(oldCurrency: String, newCurrency: String) {
-        if (exchangeRates == null) {
-            Toast.makeText(context, "Exchange rates not available", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Get exchange rates
-        val oldRate = exchangeRates!![oldCurrency] ?: 1.0
-        val newRate = exchangeRates!![newCurrency] ?: 1.0
-
-        // Calculate conversion factor
-        val conversionFactor = newRate / oldRate
-
-        // Update expenses in Firestore
-        for (expense in expensesList) {
-            val newAmount = expense.amount * conversionFactor
-
-            db.collection("expenses").document(expense.id)
-                .update(
-                    mapOf(
-                        "amount" to newAmount,
-                        "currency" to newCurrency
-                    )
-                )
-                .addOnSuccessListener {
-                    // Update local expense
-                    expense.amount = newAmount
-                }
-        }
-
-        // Refresh adapter
-        expensesAdapter.notifyDataSetChanged()
-
-        // Recalculate expense summary
-        calculateExpenseSummary()
-    }
-
     private fun getCurrencySymbol(currencyCode: String): String {
         return when (currencyCode) {
             "USD" -> "$"
@@ -484,20 +452,17 @@ class GroupExpensesFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        // Remove listener
-        expensesListener?.remove()
     }
 
-    // API Service interface
-    interface ExchangeRateService {
-        @GET("{base}")
-        fun getExchangeRates(@Path("base") base: String): Call<ExchangeRateResponse>
-    }
+    override fun onResume() {
+        super.onResume()
 
-    // Response data class
-    data class ExchangeRateResponse(
-        val base: String,
-        val date: String,
-        val rates: Map<String, Double>
-    )
+        // Get group ID from arguments
+        val args: GroupExpensesFragmentArgs by navArgs()
+        val groupId = args.groupId
+
+        // Refresh data when returning to this fragment
+        viewModel.loadGroup(groupId)
+        viewModel.loadExpenses(groupId)
+    }
 }

@@ -220,12 +220,30 @@ class AddExpenseFragment : Fragment() {
             }
     }
 
+    // Modify the saveExpenseToFirestore method to pass a flag to scroll to top
     private fun saveExpenseToFirestore(expenseId: String, expense: Map<String, Any>, groupId: String) {
         db.collection("expenses").document(expenseId)
             .set(expense)
             .addOnSuccessListener {
                 Toast.makeText(context, "Expense added successfully", Toast.LENGTH_SHORT).show()
-                // Navigate back to GroupExpensesFragment
+
+                // Create an Expense object to add to the ViewModel
+                val newExpense = com.example.androidproject.model.Expense(
+                    id = expenseId,
+                    amount = expense["amount"] as Double,
+                    description = expense["description"] as String,
+                    groupName = expense["groupName"] as String,
+                    paidBy = expense["paidBy"] as String,
+                    date = expense["date"] as Long,
+                    imgUrl = expense["imgUrl"] as String,
+                    currency = expense["currency"] as String
+                )
+
+                // Get the ViewModel and add the expense directly
+                val viewModel = androidx.lifecycle.ViewModelProvider(requireActivity())[com.example.androidproject.viewmodel.GroupExpensesViewModel::class.java]
+                viewModel.addExpenseToViewModel(newExpense)
+
+                // Navigate back to GroupExpensesFragment without any extra arguments
                 val action = AddExpenseFragmentDirections.actionAddExpenseFragmentToGroupExpensesFragment(groupId)
                 findNavController().navigate(action)
             }

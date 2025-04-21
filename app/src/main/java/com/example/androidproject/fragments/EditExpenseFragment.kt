@@ -18,12 +18,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
 import com.example.androidproject.R
 import com.example.androidproject.utils.CloudinaryHelper
 import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHttps
+import com.example.androidproject.viewmodel.GroupExpensesViewModel
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -122,39 +124,39 @@ class EditExpenseFragment : Fragment() {
 
     private fun loadExpenseData(expenseId: String) {
         db.collection("expenses").document(expenseId).get().addOnSuccessListener { document ->
-                if (document.exists()) {
-                    // Get expense data
-                    val description = document.getString("description") ?: ""
-                    val amount = document.getDouble("amount") ?: 0.0
-                    expenseDate = document.getLong("date") ?: System.currentTimeMillis()
-                    currentImageUrl = document.getString("imgUrl")
-                    groupId = document.getString("groupName") ?: ""
+            if (document.exists()) {
+                // Get expense data
+                val description = document.getString("description") ?: ""
+                val amount = document.getDouble("amount") ?: 0.0
+                expenseDate = document.getLong("date") ?: System.currentTimeMillis()
+                currentImageUrl = document.getString("imgUrl")
+                groupId = document.getString("groupName") ?: ""
 
-                    // Set fields
-                    descriptionField.setText(description)
-                    amountField.setText(String.format("%.2f", amount))
-                    // Set date
-                    calendar.timeInMillis = expenseDate
-                    dateField.setText(dateFormat.format(calendar.time))
+                // Set fields
+                descriptionField.setText(description)
+                amountField.setText(String.format("%.2f", amount))
+                // Set date
+                calendar.timeInMillis = expenseDate
+                dateField.setText(dateFormat.format(calendar.time))
 
-                    // Load image
-                    if (!currentImageUrl.isNullOrEmpty()) {
-                        context?.let { ctx ->
-                            Glide.with(ctx).load(convertToHttps(currentImageUrl.toString())).placeholder(R.drawable.ic_recipt)
-                                .error(R.drawable.ic_recipt).into(expenseImage)
-                        }
-                    } else {
-                        expenseImage.setImageResource(R.drawable.ic_recipt)
+                // Load image
+                if (!currentImageUrl.isNullOrEmpty()) {
+                    context?.let { ctx ->
+                        Glide.with(ctx).load(convertToHttps(currentImageUrl.toString())).placeholder(R.drawable.ic_recipt)
+                            .error(R.drawable.ic_recipt).into(expenseImage)
                     }
                 } else {
-                    Toast.makeText(context, "Expense not found", Toast.LENGTH_SHORT).show()
-                    findNavController().navigateUp()
+                    expenseImage.setImageResource(R.drawable.ic_recipt)
                 }
-            }.addOnFailureListener { e ->
-                Toast.makeText(context, "Error loading expense: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
+            } else {
+                Toast.makeText(context, "Expense not found", Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
             }
+        }.addOnFailureListener { e ->
+            Toast.makeText(context, "Error loading expense: ${e.message}", Toast.LENGTH_SHORT)
+                .show()
+            findNavController().navigateUp()
+        }
     }
 
     private fun checkCameraPermission() {
@@ -300,19 +302,19 @@ class EditExpenseFragment : Fragment() {
         )
 
         db.collection("expenses").document(expenseId).update(updates).addOnSuccessListener {
-                Toast.makeText(context, "Expense updated successfully", Toast.LENGTH_SHORT).show()
-                // Navigate back to group expenses
-                val action =
-                    EditExpenseFragmentDirections.actionEditExpenseFragmentToGroupExpensesFragment(
-                        groupId
-                    )
-                findNavController().navigate(action)
-            }.addOnFailureListener { e ->
-                Toast.makeText(context, "Error updating expense: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-                saveButton.isEnabled = true
-                saveButton.text = "Save Changes"
-            }
+            Toast.makeText(context, "Expense updated successfully", Toast.LENGTH_SHORT).show()
+            // Navigate back to group expenses
+            val action =
+                EditExpenseFragmentDirections.actionEditExpenseFragmentToGroupExpensesFragment(
+                    groupId
+                )
+            findNavController().navigate(action)
+        }.addOnFailureListener { e ->
+            Toast.makeText(context, "Error updating expense: ${e.message}", Toast.LENGTH_SHORT)
+                .show()
+            saveButton.isEnabled = true
+            saveButton.text = "Save Changes"
+        }
     }
 
     private fun deleteExpense(expenseId: String) {
@@ -322,18 +324,26 @@ class EditExpenseFragment : Fragment() {
 
         // Delete expense from Firestore
         db.collection("expenses").document(expenseId).delete().addOnSuccessListener {
-                Toast.makeText(context, "Expense deleted successfully", Toast.LENGTH_SHORT).show()
-                // Navigate back to group expenses
-                val action =
-                    EditExpenseFragmentDirections.actionEditExpenseFragmentToGroupExpensesFragment(
-                        groupId
-                    )
-                findNavController().navigate(action)
-            }.addOnFailureListener { e ->
-                Toast.makeText(context, "Error deleting expense: ${e.message}", Toast.LENGTH_SHORT)
-                    .show()
-                deleteButton.isEnabled = true
-                deleteButton.text = "Delete Expense"
-            }
+            Toast.makeText(context, "Expense deleted successfully", Toast.LENGTH_SHORT).show()
+
+            // Make sure we're using the viewModel to delete the expense
+            val viewModel = ViewModelProvider(requireActivity())[GroupExpensesViewModel::class.java]
+            viewModel.deleteExpense(expenseId,
+                onSuccess = {
+                    // Navigate back to group expenses
+                    val action = EditExpenseFragmentDirections.actionEditExpenseFragmentToGroupExpensesFragment(groupId)
+                    findNavController().navigate(action)
+                },
+                onError = { errorMsg ->
+                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+                    deleteButton.isEnabled = true
+                    deleteButton.text = "Delete Expense"
+                }
+            )
+        }.addOnFailureListener { e ->
+            Toast.makeText(context, "Error deleting expense: ${e.message}", Toast.LENGTH_SHORT).show()
+            deleteButton.isEnabled = true
+            deleteButton.text = "Delete Expense"
+        }
     }
 }

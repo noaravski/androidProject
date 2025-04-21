@@ -13,8 +13,9 @@ import com.example.androidproject.utils.ProfileImageLoader.Companion.convertToHt
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.recyclerview.widget.DiffUtil
 
-class ExpensesAdapter(private val expenses: List<Expense>) :
+class ExpensesAdapter(private var expenses: List<Expense>) :
     RecyclerView.Adapter<ExpensesAdapter.ExpenseViewHolder>() {
 
     private var onItemClickListener: ((Expense) -> Unit)? = null
@@ -35,6 +36,25 @@ class ExpensesAdapter(private val expenses: List<Expense>) :
     }
 
     override fun getItemCount(): Int = expenses.size
+
+    // Add a method to update the expenses list
+    fun updateExpenses(newExpenses: List<Expense>) {
+        val oldList = expenses
+        val diffResult = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+            override fun getOldListSize(): Int = oldList.size
+            override fun getNewListSize(): Int = newExpenses.size
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldList[oldItemPosition].id == newExpenses[newItemPosition].id
+            }
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldList[oldItemPosition] == newExpenses[newItemPosition]
+            }
+        })
+
+        // Update the expenses list
+        expenses = newExpenses
+        diffResult.dispatchUpdatesTo(this)
+    }
 
     inner class ExpenseViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val expenseImage: ImageView = itemView.findViewById(R.id.expenseImage)
